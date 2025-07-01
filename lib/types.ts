@@ -74,13 +74,7 @@ export type NewsArticle = {
   category: string;
   shortDescription: string;
   newsUrl?: string;
-  featuredCoverPhoto?: {
-    fields: {
-      file: {
-        url: string;
-      };
-    };
-  };
+  image: string; // this will be derived from `featuredCoverPhoto`
 };
 
 
@@ -188,3 +182,24 @@ export interface GalleryImage {
   date: string
   tags: string[]
 }
+
+//// new entries
+
+export type DirectoryEntry = {
+  id: string;
+  name: string;
+  role: string;
+  yearsOfExperience: string;
+  email: string;
+  phone: string;
+  location: string;
+  website?: string;
+  description: string;
+  specializations: string[];
+  rates: string;
+  availability: boolean;
+  equipment: string;
+  recentWorks: string[];
+  certifications: string;
+  image: string;
+};

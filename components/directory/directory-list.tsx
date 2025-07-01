@@ -6,22 +6,27 @@ import Image from "next/image"
 import { ChevronDown, ChevronUp, Mail, Phone, MapPin, Globe, Award, Briefcase, Search, Filter } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { getDirectoryMembers, getUniqueRoles, type DirectoryMember } from "@/lib/directory-data"
+import type { DirectoryEntry } from "@/lib/types"
+import { BLOCKS } from "@contentful/rich-text-types"
 
-export function DirectoryList() {
+interface DirectoryListProps {
+  members?: DirectoryEntry[] // <-- make it optional just in case
+}
+
+export function DirectoryList({ members }: DirectoryListProps) {
   const [expandedMembers, setExpandedMembers] = useState<Set<string>>(new Set())
   const [searchQuery, setSearchQuery] = useState("")
   const [roleFilter, setRoleFilter] = useState("all")
 
-  const allMembers = getDirectoryMembers()
-  const roles = getUniqueRoles()
+  const allMembers = members ?? []
+  const roles = Array.from(new Set(allMembers.map((m) => m.role)))
 
   const filteredMembers = useMemo(() => {
     return allMembers.filter((member) => {
       const matchesSearch =
         member.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         member.role.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        member.bio.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        member.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
         member.specializations.some((spec) => spec.toLowerCase().includes(searchQuery.toLowerCase()))
 
       const matchesRole = roleFilter === "all" || member.role === roleFilter
@@ -101,7 +106,7 @@ export function DirectoryList() {
 }
 
 interface DirectoryCardProps {
-  member: DirectoryMember
+  member: DirectoryEntry
   isExpanded: boolean
   onToggle: () => void
 }
@@ -139,7 +144,6 @@ function DirectoryCard({ member, isExpanded, onToggle }: DirectoryCardProps) {
               <div className="flex-1 min-w-0">
                 <h3 className="text-lg font-semibold text-white truncate">{member.name}</h3>
                 <p className="text-green-400 text-sm font-medium">{member.role}</p>
-                {/* Show contact info only on desktop */}
                 <div className="hidden sm:flex sm:flex-col lg:flex-row lg:items-center lg:space-x-4 mt-1 text-sm text-gray-400 space-y-1 lg:space-y-0">
                   {member.email && (
                     <div className="flex items-center space-x-1">
@@ -166,7 +170,6 @@ function DirectoryCard({ member, isExpanded, onToggle }: DirectoryCardProps) {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
           >
-            {/* Green Header Section - Clickable to collapse */}
             <div className="bg-green-600 p-4 md:p-6 cursor-pointer" onClick={onToggle}>
               <div className="flex items-center justify-between gap-4">
                 <div className="flex items-center space-x-4 md:space-x-6 w-full min-w-0">
@@ -182,7 +185,7 @@ function DirectoryCard({ member, isExpanded, onToggle }: DirectoryCardProps) {
                   <div className="flex-1 min-w-0">
                     <h2 className="text-xl md:text-2xl font-bold text-white">{member.name}</h2>
                     <p className="text-green-100 text-base md:text-lg font-medium">{member.role}</p>
-                    <p className="text-green-100 text-sm mt-1">{member.experience} experience</p>
+                    <p className="text-green-100 text-sm mt-1">{member.yearsOfExperience} years of experience</p>
                     <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-6 mt-3 text-white space-y-2 sm:space-y-0">
                       {member.email && (
                         <div className="flex items-center space-x-2">
@@ -223,7 +226,6 @@ function DirectoryCard({ member, isExpanded, onToggle }: DirectoryCardProps) {
               </div>
             </div>
 
-            {/* Details Section - Not clickable */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -232,14 +234,9 @@ function DirectoryCard({ member, isExpanded, onToggle }: DirectoryCardProps) {
               onClick={(e) => e.stopPropagation()}
             >
               <div className="space-y-4 md:space-y-6">
-                {/* Biography and Specializations */}
-                <motion.div
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.4, delay: 0.2 }}
-                >
+                <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.4, delay: 0.2 }}>
                   <h3 className="text-lg md:text-xl font-semibold text-white mb-3">About</h3>
-                  <p className="text-gray-300 leading-relaxed mb-4 text-sm md:text-base">{member.bio}</p>
+                  <p className="text-gray-300 leading-relaxed mb-4 text-sm md:text-base">{member.description}</p>
 
                   <div className="mb-4">
                     <h4 className="text-sm font-medium text-gray-400 mb-2">Specializations</h4>
@@ -259,72 +256,44 @@ function DirectoryCard({ member, isExpanded, onToggle }: DirectoryCardProps) {
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3, delay: 0.4 }}
-                    >
+                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.4 }}>
                       <h4 className="text-sm font-medium text-gray-400 mb-1">Rates</h4>
                       <p className="text-white text-sm md:text-base">{member.rates}</p>
                     </motion.div>
-                    <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3, delay: 0.5 }}
-                    >
+                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.5 }}>
                       <h4 className="text-sm font-medium text-gray-400 mb-1">Availability</h4>
-                      <p
-                        className={`font-medium text-sm md:text-base ${
-                          member.availability === "Available" ? "text-green-400" : "text-yellow-400"
-                        }`}
-                      >
-                        {member.availability}
+                      <p className={`font-medium text-sm md:text-base ${member.availability ? "text-green-400" : "text-yellow-400"}`}>
+                        {member.availability ? "Available" : "Unavailable"}
+                        
                       </p>
                     </motion.div>
                   </div>
                 </motion.div>
 
-                {/* Professional Details - Compact Layout */}
-                <motion.div
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.4, delay: 0.3 }}
-                  className="space-y-4"
-                >
-                  {/* Equipment - Comma Separated */}
-                  {member.equipment && member.equipment.length > 0 && (
+                <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.4, delay: 0.3 }} className="space-y-4">
+                  {member.equipment && (
                     <div>
                       <h3 className="text-lg md:text-xl font-semibold text-white mb-3 flex items-center">
                         <Briefcase className="w-5 h-5 mr-2 text-green-400" />
                         Equipment & Tools
                       </h3>
-                      <motion.div
-                        initial={{ opacity: 0, x: 10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.3, delay: 0.4 }}
-                        className="bg-zinc-900 p-3 rounded text-gray-300 text-sm md:text-base"
-                      >
-                        {member.equipment.join(", ")}
+                      <motion.div initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.3, delay: 0.4 }}
+                        className="bg-zinc-900 p-3 rounded text-gray-300 text-sm md:text-base">
+                        {member.equipment}
                       </motion.div>
                     </div>
                   )}
 
-                  {/* Portfolio */}
-                  {member.portfolio && member.portfolio.length > 0 && (
+                  {member.recentWorks.length > 0 && (
                     <div>
                       <h3 className="text-lg md:text-xl font-semibold text-white mb-3 flex items-center">
                         <Award className="w-5 h-5 mr-2 text-green-400" />
                         Recent Work
                       </h3>
                       <div className="space-y-2">
-                        {member.portfolio.map((work, index) => (
-                          <motion.div
-                            key={index}
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.3, delay: 0.5 + index * 0.1 }}
-                            className="bg-zinc-900 p-2 rounded-lg"
-                          >
+                        {member.recentWorks.map((work, index) => (
+                          <motion.div key={index} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.3, delay: 0.5 + index * 0.1 }} className="bg-zinc-900 p-2 rounded-lg">
                             <p className="text-white text-sm">{work}</p>
                           </motion.div>
                         ))}
@@ -332,17 +301,12 @@ function DirectoryCard({ member, isExpanded, onToggle }: DirectoryCardProps) {
                     </div>
                   )}
 
-                  {/* Certifications - Comma Separated */}
-                  {member.certifications && member.certifications.length > 0 && (
+                  {member.certifications && (
                     <div>
                       <h3 className="text-lg md:text-xl font-semibold text-white mb-3">Certifications</h3>
-                      <motion.div
-                        initial={{ opacity: 0, x: 10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.3, delay: 0.6 }}
-                        className="bg-zinc-900 p-3 rounded text-gray-300 text-sm md:text-base"
-                      >
-                        {member.certifications.join(", ")}
+                      <motion.div initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.3, delay: 0.6 }}
+                        className="bg-zinc-900 p-3 rounded text-gray-300 text-sm md:text-base">
+                        {member.certifications}
                       </motion.div>
                     </div>
                   )}
