@@ -15,7 +15,7 @@ export default function FeaturedArticle({ article }: FeaturedArticleProps) {
   return (
     <section className="py-12 bg-transparent">
       <div className="container mx-auto px-4">
-        <Link href={`/news/${article.id}`}>
+        <Link href={article.newsUrl ?? "#"} target="_blank" rel="noopener noreferrer">
           <Card className="bg-zinc-900 overflow-hidden">
             <CardContent className="p-0">
               <div className="grid md:grid-cols-2 gap-0">
@@ -30,8 +30,11 @@ export default function FeaturedArticle({ article }: FeaturedArticleProps) {
                     <span className="ml-3 text-gray-400 text-sm">{format(new Date(article.date), "MMMM d, yyyy")}</span>
                   </div>
                   <h2 className="text-2xl md:text-3xl font-bold mb-4">{article.title}</h2>
-                  <p className="text-gray-300 mb-6">{article.excerpt}</p>
-                  <Button className="w-fit">Read More</Button>
+                  <p className="text-gray-300 mb-6">{article.shortDescription}</p>
+
+                  <Link href={article.newsUrl ?? "#"} target="_blank" rel="noopener noreferrer">
+                    <Button className="w-fit">Read More</Button>
+                  </Link>
                 </div>
               </div>
             </CardContent>

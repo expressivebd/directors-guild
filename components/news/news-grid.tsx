@@ -21,6 +21,7 @@ export default function NewsGrid({ articles, resetFilters, showNoResultsMessage 
     threshold: 0.1,
   })
 
+
   return (
     <section ref={ref} className="py-16 bg-transparent">
       <motion.div
@@ -46,7 +47,7 @@ export default function NewsGrid({ articles, resetFilters, showNoResultsMessage 
                 animate={inView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
               >
-                <Link href={`/news/${article.id}`}>
+                <Link href={article.newsUrl ?? "#"} target="_blank" rel="noopener noreferrer">
                   <Card className="bg-zinc-800 overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-1 h-full">
                     <CardContent className="p-0 h-full flex flex-col">
                       <div className="relative h-[200px]">
@@ -67,10 +68,14 @@ export default function NewsGrid({ articles, resetFilters, showNoResultsMessage 
                           </span>
                         </div>
                         <h3 className="text-xl font-bold mb-3">{article.title}</h3>
-                        <p className="text-sm text-gray-300 mb-4 flex-grow">{article.excerpt}</p>
-                        <Button variant="link" className="p-0 h-auto w-fit text-green-500 hover:text-green-400">
-                          Read More
-                        </Button>
+                        <p className="text-sm text-gray-300 mb-4 flex-grow">{article.shortDescription}</p>
+
+                        <Link href={article.newsUrl ?? "#"} target="_blank" rel="noopener noreferrer">
+                          <Button variant="link" className="p-0 h-auto w-fit text-green-500 hover:text-green-400">
+                            Read More
+                          </Button>
+
+                        </Link>
                       </div>
                     </CardContent>
                   </Card>

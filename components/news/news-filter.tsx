@@ -11,7 +11,7 @@ import type { NewsArticle } from "@/lib/types"
 interface NewsFilterProps {
   articles: NewsArticle[]
 }
-
+ 
 export default function NewsFilter({ articles }: NewsFilterProps) {
   const [filteredArticles, setFilteredArticles] = useState<NewsArticle[]>(articles)
   const [searchQuery, setSearchQuery] = useState("")
@@ -43,7 +43,7 @@ export default function NewsFilter({ articles }: NewsFilterProps) {
     const filtered = articles.filter((article) => {
       const matchesSearch =
         article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        article.excerpt.toLowerCase().includes(searchQuery.toLowerCase())
+        article.shortDescription.toLowerCase().includes(searchQuery.toLowerCase())
       const matchesCategory = categoryFilter === "all" || article.category === categoryFilter
       const articleYear = new Date(article.date).getFullYear().toString()
       const matchesYear = yearFilter === "all" || articleYear === yearFilter

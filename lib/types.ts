@@ -67,16 +67,25 @@ export interface TeamMember {
 }
 
 // News Article type
-export interface NewsArticle {
-  id: string
-  title: string
-  excerpt: string
-  content: string
-  image?: string
-  date: string
-  author: string
-  category: string
-}
+export type NewsArticle = {
+  id: string;
+  title: string;
+  date: string;
+  category: string;
+  shortDescription: string;
+  newsUrl?: string;
+  featuredCoverPhoto?: {
+    fields: {
+      file: {
+        url: string;
+      };
+    };
+  };
+};
+
+
+
+
 
 // Carousel Item type
 export interface CarouselItem {
