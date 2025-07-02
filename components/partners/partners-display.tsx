@@ -21,7 +21,6 @@ export default function PartnersDisplay({ partners }: PartnersDisplayProps) {
   })
 
   useEffect(() => {
-    // Simulate loading delay
     const timer = setTimeout(() => {
       setIsLoading(false)
     }, 1500)
@@ -29,7 +28,6 @@ export default function PartnersDisplay({ partners }: PartnersDisplayProps) {
     return () => clearTimeout(timer)
   }, [])
 
-  // Loading animation
   if (isLoading) {
     return (
       <div className="py-16 flex flex-col items-center justify-center">
@@ -64,8 +62,8 @@ export default function PartnersDisplay({ partners }: PartnersDisplayProps) {
     )
   }
 
-  // Featured partners for the animated display
-  const featuredPartners = partners.slice(0, 6)
+  // Filter only featured partners (from Contentful field)
+  const featuredPartners = partners.filter((partner) => partner.isFeatured)
 
   return (
     <section ref={ref} className="py-12 bg-zinc-900/70 backdrop-blur-sm">

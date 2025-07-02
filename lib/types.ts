@@ -156,22 +156,22 @@ export interface Branch {
 }
 
 // Partner type (formerly Incentive)
-export interface Partner {
-  id: string
-  brandName: string
-  brandLogo?: string
-  discountPercentage: number
-  discountDetails: string
-  shortDescription: string
-  description: string
-  category: string
-  redemptionInstructions: string
-  termsAndConditions?: string
-  expiryDate?: string
-  locations?: string
-  website?: string
-  branches?: Branch[]
-}
+// export interface Partner {
+//   id: string
+//   brandName: string
+//   brandLogo?: string
+//   discountPercentage: number
+//   discountDetails: string
+//   shortDescription: string
+//   description: string
+//   category: string
+//   redemptionInstructions: string
+//   termsAndConditions?: string
+//   expiryDate?: string
+//   locations?: string
+//   website?: string
+//   branches?: Branch[]
+// }
 
 export interface GalleryImage {
   id: string
@@ -203,3 +203,26 @@ export type DirectoryEntry = {
   certifications: string;
   image: string;
 };
+
+export interface Partner {
+  id: string
+  brandName: string
+  brandLogo: string
+  isFeatured: boolean
+  shortDescription: string
+  description: string
+  website?: string
+  discountPercentage?: string
+  expiryDate?: string
+  locations?: string
+  redemptionInstructions?: string
+  discountDetails?: string
+  branches?: {
+    name: string
+    address?: string
+    phone?: string
+  }[]
+  category?: string
+  termsAndConditions?: string
+}
+

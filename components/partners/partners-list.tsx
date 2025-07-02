@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
 import { motion } from "framer-motion"
 import { useInView } from "react-intersection-observer"
@@ -26,14 +25,12 @@ export default function PartnersList({ partners }: PartnersListProps) {
     threshold: 0.1,
   })
 
-  // Extract unique categories
   const categories = ["all", ...new Set(partners.map((partner) => partner.category))]
 
-  // Filter partners based on search and category
   const filteredPartners = partners.filter((partner) => {
     const matchesSearch =
       partner.brandName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      partner.description.toLowerCase().includes(searchQuery.toLowerCase())
+      partner.description?.toLowerCase().includes(searchQuery.toLowerCase())
     const matchesCategory = categoryFilter === "all" || partner.category === categoryFilter
     return matchesSearch && matchesCategory
   })
@@ -43,18 +40,13 @@ export default function PartnersList({ partners }: PartnersListProps) {
   }
 
   const handleCardClick = (itemId: string, e: React.MouseEvent) => {
-    // Don't toggle if clicking on links or buttons
-    if ((e.target as HTMLElement).closest("a, button")) {
-      return
-    }
+    if ((e.target as HTMLElement).closest("a, button")) return
     toggleItem(itemId)
   }
 
   const handleHeaderClick = (itemId: string, e: React.MouseEvent) => {
     e.stopPropagation()
-    if (openItems.includes(itemId)) {
-      toggleItem(itemId)
-    }
+    if (openItems.includes(itemId)) toggleItem(itemId)
   }
 
   return (
@@ -172,14 +164,19 @@ export default function PartnersList({ partners }: PartnersListProps) {
                           <div className="grid md:grid-cols-2 gap-6">
                             <div>
                               <h4 className="font-bold mb-2">Description</h4>
-                              <p className="text-gray-300 mb-4">{partner.description}</p>
-
-                              <h4 className="font-bold mb-2">How to Redeem</h4>
-                              <p className="text-gray-300 mb-4">{partner.redemptionInstructions}</p>
+                              <div className="text-gray-300 mb-4" dangerouslySetInnerHTML={{ __html: partner.description }} />
 
                               {partner.website && (
                                 <Button variant="outline" size="sm" className="mt-2" asChild>
-                                  <a href={partner.website} target="_blank" rel="noopener noreferrer">
+                                  <a
+                                    href={
+                                      partner.website.startsWith("http://") || partner.website.startsWith("https://")
+                                        ? partner.website
+                                        : `https://${partner.website}`
+                                    }
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                  >
                                     <ExternalLink className="mr-2 h-4 w-4" />
                                     Visit Website
                                   </a>
@@ -233,7 +230,7 @@ export default function PartnersList({ partners }: PartnersListProps) {
                               {partner.termsAndConditions && (
                                 <div className="bg-zinc-800 p-4 rounded-lg">
                                   <h4 className="font-bold mb-2">Terms & Conditions</h4>
-                                  <p className="text-sm text-gray-300">{partner.termsAndConditions}</p>
+                                  <div className="text-sm text-gray-300" dangerouslySetInnerHTML={{ __html: partner.termsAndConditions }} />
                                 </div>
                               )}
                             </div>

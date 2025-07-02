@@ -1,7 +1,7 @@
 import PageHeader from "@/components/layout/page-header"
 import PartnersDisplay from "@/components/partners/partners-display"
 import PartnersList from "@/components/partners/partners-list"
-import { fetchPartners } from "@/lib/api"
+import { fetchPartners } from "@/lib/contentful"
 
 export default async function PartnersPage() {
   // Fetch partners data
