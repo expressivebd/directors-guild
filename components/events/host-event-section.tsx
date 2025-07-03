@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button"
 
 export default function HostEventSection() {
   return (
-    <section className="py-16 bg-zinc-900/70 backdrop-blur-sm">
+    <section className="relative py-16 bg-zinc-900/70 backdrop-blur-sm z-0">
       <div className="container mx-auto px-4">
         <div className="max-w-3xl mx-auto text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-6">Host an Event with Us</h2>

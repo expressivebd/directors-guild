@@ -9,6 +9,8 @@ import PollSection from "@/components/home/poll-section"
 import TributeSection from "@/components/home/tribute-section"
 import WideAdPanel from "@/components/ads/wide-ad-panel"
 
+
+
 export default async function Home() {
   // Fetch data on the server
   const featuredProjects = await fetchFeaturedProjects()
@@ -46,7 +48,7 @@ export default async function Home() {
           </div>
 
           <div className="relative -mx-4">
-            <FeaturedSection projects={featuredProjects} />
+            <FeaturedSection />
           </div>
 
           <div className="text-center mt-12">

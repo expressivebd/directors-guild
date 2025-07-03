@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button"
 import { CalendarIcon, MapPinIcon, ClockIcon, UsersIcon, ArrowRight } from "lucide-react"
 import { format } from "date-fns"
 import type { Event } from "@/lib/types"
-import { getEventById } from "@/lib/events-data"
 import EventDetailsModal from "./event-details-modal"
 
 interface EventsGridProps {
@@ -25,14 +24,11 @@ export default function EventsGrid({ groupedEvents, resetFilters }: EventsGridPr
 
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const triggerRefs = useRef<Record<string, HTMLButtonElement>>({})
+  const triggerRefs = useRef<Record<string, HTMLButtonElement | null>>({})
 
-  const handleViewDetails = (eventId: string) => {
-    const event = getEventById(eventId)
-    if (event) {
-      setSelectedEvent(event)
-      setIsModalOpen(true)
-    }
+  const handleViewDetails = (event: Event) => {
+    setSelectedEvent(event)
+    setIsModalOpen(true)
   }
 
   const closeModal = () => {
@@ -75,7 +71,7 @@ export default function EventsGrid({ groupedEvents, resetFilters }: EventsGridPr
                                 src={event.image || "/placeholder.svg"}
                                 alt={event.title}
                                 fill
-                                className="object-cover"
+                                className="object-fit"
                               />
                             </div>
                             <div className="md:col-span-2 p-6">
@@ -90,7 +86,9 @@ export default function EventsGrid({ groupedEvents, resetFilters }: EventsGridPr
                                 ))}
                               </div>
                               <h3 className="text-xl font-bold mb-3">{event.title}</h3>
-                              <p className="text-gray-300 mb-4 line-clamp-2">{event.description}</p>
+                              <p className="text-gray-300 mb-4 italic line-clamp-2">
+                                View details for event description and agenda.
+                              </p>
                               <div className="flex flex-wrap gap-4 text-sm text-gray-400 mb-4">
                                 <div className="flex items-center gap-1">
                                   <CalendarIcon size={16} />
@@ -113,9 +111,9 @@ export default function EventsGrid({ groupedEvents, resetFilters }: EventsGridPr
                               </div>
                               <Button
                                 ref={(el) => {
-                                  if (el) triggerRefs.current[event.id] = el
+                                  triggerRefs.current[event.id] = el
                                 }}
-                                onClick={() => handleViewDetails(event.id)}
+                                onClick={() => handleViewDetails(event)}
                                 className="bg-green-600 hover:bg-green-700 text-white"
                               >
                                 View Details

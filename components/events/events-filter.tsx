@@ -22,7 +22,6 @@ export default function EventsFilter({ events, eventDates }: EventsFilterProps) 
     const filtered = events.filter((event) => {
       const matchesSearch =
         event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        event.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
         event.location.toLowerCase().includes(searchQuery.toLowerCase())
 
       const matchesDate = !selectedDate || isSameDay(new Date(event.date), selectedDate)

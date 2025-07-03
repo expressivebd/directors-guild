@@ -1,4 +1,3 @@
-"use client"
 
 import ContactForm from "@/components/contact/contact-form"
 import ContactInfo from "@/components/contact/contact-info"

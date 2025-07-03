@@ -1,23 +1,35 @@
 // Type definitions for the application
 
-// Project type
-export interface Project {
-  id: string
-  title: string
-  description: string
-  image?: string
-  year: string
-  director?: string
-  category: string
-  tags: string[]
-  status?: "In Development" | "Pre-production" | "In Production" | "Post-production" | "Completed" | "Released"
-}
-
 // Event type
+// export interface Event {
+//   id: string
+//   title: string
+//   description: string
+//   image?: string
+//   date: string
+//   time: string
+//   location: string
+//   type: string
+//   tags: string[]
+//   attendees?: number
+//   actionLink?: string
+//   organizer?: string
+//   venue?: string
+//   venueAddress?: string
+//   ticketPrice?: string
+//   dresscode?: string
+//   agenda?: string
+//   speakers?: string[]
+//   requirements?: string
+//   contact?: string
+// }
+
+import { Document } from "@contentful/rich-text-types"
+
 export interface Event {
   id: string
   title: string
-  description: string
+  description?: Document
   image?: string
   date: string
   time: string
@@ -31,11 +43,12 @@ export interface Event {
   venueAddress?: string
   ticketPrice?: string
   dresscode?: string
-  agenda?: string[]
+  agenda?: Document
   speakers?: string[]
   requirements?: string
   contact?: string
 }
+
 
 // Member type
 export interface Member {
@@ -81,7 +94,7 @@ export type NewsArticle = {
 
 
 
-// Carousel Item type
+//Carousel Item type
 export interface CarouselItem {
   id: string
   title: string
@@ -226,3 +239,28 @@ export interface Partner {
   termsAndConditions?: string
 }
 
+
+export interface FeaturedWork {
+  id: string;
+  title: string;
+  year: number;
+  image?: string;
+  genre: string[];
+  tags?: string[];
+  director?: string;
+  redirectURL: string;
+}
+
+
+// Project type
+// export interface Project {
+//   id: string
+//   title: string
+//   description: string
+//   image?: string
+//   year: string
+//   director?: string
+//   category: string
+//   tags: string[]
+  
+// }
