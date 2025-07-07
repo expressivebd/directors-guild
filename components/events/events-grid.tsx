@@ -71,7 +71,7 @@ export default function EventsGrid({ groupedEvents, resetFilters }: EventsGridPr
                                 src={event.image || "/placeholder.svg"}
                                 alt={event.title}
                                 fill
-                                className="object-fit"
+                                className="object-cover"
                               />
                             </div>
                             <div className="md:col-span-2 p-6">

@@ -1,28 +1,6 @@
 // Type definitions for the application
 
 // Event type
-// export interface Event {
-//   id: string
-//   title: string
-//   description: string
-//   image?: string
-//   date: string
-//   time: string
-//   location: string
-//   type: string
-//   tags: string[]
-//   attendees?: number
-//   actionLink?: string
-//   organizer?: string
-//   venue?: string
-//   venueAddress?: string
-//   ticketPrice?: string
-//   dresscode?: string
-//   agenda?: string
-//   speakers?: string[]
-//   requirements?: string
-//   contact?: string
-// }
 
 import { Document } from "@contentful/rich-text-types"
 
@@ -245,7 +223,7 @@ export interface FeaturedWork {
   title: string;
   year: number;
   image?: string;
-  genre: string[];
+  genre: string; // Changed from string[] to string to match Contentful schema
   tags?: string[];
   director?: string;
   redirectURL: string;

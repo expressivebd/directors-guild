@@ -4,11 +4,12 @@ import { useRef, useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight, Play } from "lucide-react";
-import { fetchFeaturedProjects } from "@/lib/api";
+import { fetchFeaturedWorks, testContentfulConnection } from "@/lib/contentful";
+import type { FeaturedWork } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 export default function FeaturedSection() {
-  const [projects, setProjects] = useState<any[]>([]);
+  const [projects, setProjects] = useState<FeaturedWork[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -19,11 +20,17 @@ export default function FeaturedSection() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const data = await fetchFeaturedProjects();
+        console.log('🎭 Featured section: Starting to fetch data...');
+        
+        // Test Contentful connection first
+        await testContentfulConnection();
+        
+        const data = await fetchFeaturedWorks();
+        console.log('🎭 Featured section: Received data:', data);
         setProjects(data);
       } catch (err) {
+        console.error('🎭 Featured section: Error:', err);
         setError("Failed to load featured projects");
-        console.error(err);
       } finally {
         setLoading(false);
       }
@@ -102,7 +109,7 @@ export default function FeaturedSection() {
           {[1, 2, 3, 4, 5, 6].map((i) => (
             <div
               key={i}
-              className="w-[300px] h-[450px] bg-gray-800 rounded-md animate-pulse flex-shrink-0"
+              className="w-[480px] h-[270px] bg-gray-800 rounded-md animate-pulse flex-shrink-0"
             ></div>
           ))}
         </div>
@@ -158,15 +165,17 @@ export default function FeaturedSection() {
             <div
               key={project.id}
               className={cn(
-                "flex-shrink-0 w-[300px] h-[450px] snap-start relative group/card overflow-hidden rounded-lg",
+                "flex-shrink-0 w-[480px] h-[270px] snap-start relative group/card overflow-hidden rounded-lg", // 16:9 aspect ratio
                 index === 0 ? "ml-4" : "ml-3",
                 index === projects.length - 1 ? "mr-4" : ""
               )}
               style={{ scrollSnapAlign: "start" }}
             >
               <Link
-                href={`/projects/${project.id}`}
+                href={project.redirectURL || "#"}
                 className="block w-full h-full"
+                target="_blank"
+                rel="noopener noreferrer"
               >
                 <div className="relative w-full h-full overflow-hidden rounded-lg transition-all duration-300 group-hover/card:scale-105 group-hover/card:shadow-[0_0_20px_rgba(74,222,128,0.4)] group-hover/card:-translate-y-2">
                   {/* Poster Image */}

@@ -1,3 +1,5 @@
+"use client";
+
 import dynamic from "next/dynamic"
 
 // Lazy-load Google Maps iframe to avoid blocking
