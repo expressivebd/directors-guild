@@ -79,6 +79,7 @@ export interface CarouselItem {
   description: string
   image: string
   link: string
+  isFeatured?: boolean
 }
 
 // User Profile type

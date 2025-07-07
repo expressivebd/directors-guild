@@ -5,9 +5,9 @@ import Image from "next/image"
 import Link from "next/link"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
-import { fetchCarouselItems } from "@/lib/api"
+import { fetchCarouselItems, testCarouselConnection } from "@/lib/contentful"
 import type { CarouselItem } from "@/lib/types"
-import { ChevronLeft, ChevronRight } from "lucide-react"
+import { ChevronLeft, ChevronRight, ChevronDown } from "lucide-react"
 
 interface HomeCarouselProps {
   fullScreen?: boolean
@@ -21,11 +21,13 @@ export default function HomeCarousel({ fullScreen = false }: HomeCarouselProps) 
   useEffect(() => {
     const loadData = async () => {
       try {
+        console.log('🎠 Carousel: Starting to fetch data...');
         const data = await fetchCarouselItems()
+        console.log('🎠 Carousel: Received data:', data);
         setItems(data)
         setLoading(false)
       } catch (error) {
-        console.error("Error loading carousel items:", error)
+        console.error("🎠 Carousel: Error loading carousel items:", error)
         setLoading(false)
       }
     }
@@ -145,6 +147,3 @@ export default function HomeCarousel({ fullScreen = false }: HomeCarouselProps) 
     </div>
   )
 }
-
-// Add missing import
-import { ChevronDown } from "lucide-react"
