@@ -4,64 +4,81 @@ import Image from "next/image"
 import { motion } from "framer-motion"
 import { useInView } from "react-intersection-observer"
 import { useEffect, useState } from "react"
+import { Star, Calendar, Film } from "lucide-react"
 
 interface Legend {
   id: string
   name: string
-  years: string
+  genre: string
+  lifespan: string
   image: string
-  contribution: string[]
   bio: string
+  famousWorks: string[]
 }
 
 const legends: Legend[] = [
   {
     id: "1",
     name: "Stanley Kubrick",
-    years: "1928 - 1999",
+    genre: "Visionary Director",
+    lifespan: "1928 - 1999",
     image: "/placeholder.svg?height=400&width=400",
-    contribution: ["Cinematography", "Visual Storytelling", "Perfectionism"],
     bio: "Visionary director known for meticulous attention to detail and groundbreaking visual techniques in films like 2001: A Space Odyssey and The Shining.",
+    famousWorks: ["2001: A Space Odyssey", "The Shining", "A Clockwork Orange", "Full Metal Jacket"],
   },
   {
     id: "2",
     name: "Akira Kurosawa",
-    years: "1910 - 1998",
+    genre: "Epic Director",
+    lifespan: "1910 - 1998",
     image: "/placeholder.svg?height=400&width=400",
-    contribution: ["Samurai Films", "Camera Movement", "Weather as Character"],
     bio: "Japanese master filmmaker who revolutionized cinema with dynamic camera work and epic storytelling in Seven Samurai and Rashomon.",
+    famousWorks: ["Seven Samurai", "Rashomon", "Yojimbo", "Ikiru"],
   },
   {
     id: "3",
     name: "Orson Welles",
-    years: "1915 - 1985",
+    genre: "Innovative Director",
+    lifespan: "1915 - 1985",
     image: "/placeholder.svg?height=400&width=400",
-    contribution: ["Deep Focus", "Narrative Innovation", "Radio Drama"],
     bio: "Pioneering director and actor who changed cinema forever with Citizen Kane, introducing innovative camera techniques and narrative structures.",
+    famousWorks: ["Citizen Kane", "Touch of Evil", "The Magnificent Ambersons", "Chimes at Midnight"],
   },
   {
     id: "4",
     name: "Federico Fellini",
-    years: "1920 - 1993",
+    genre: "Surrealist Director",
+    lifespan: "1920 - 1993",
     image: "/placeholder.svg?height=400&width=400",
-    contribution: ["Surrealism", "Dream Sequences", "Italian Neorealism"],
     bio: "Italian maestro known for his distinctive style blending fantasy and reality in masterpieces like 8½ and La Dolce Vita.",
+    famousWorks: ["8½", "La Dolce Vita", "Amarcord", "La Strada"],
   },
   {
     id: "5",
     name: "Ingmar Bergman",
-    years: "1918 - 2007",
+    genre: "Psychological Director",
+    lifespan: "1918 - 2007",
     image: "/placeholder.svg?height=400&width=400",
-    contribution: ["Psychological Drama", "Existential Themes", "Close-ups"],
     bio: "Swedish director who explored the human condition with unparalleled depth in films like The Seventh Seal and Persona.",
+    famousWorks: ["The Seventh Seal", "Persona", "Wild Strawberries", "Cries and Whispers"],
   },
   {
     id: "6",
     name: "Alfred Hitchcock",
-    years: "1899 - 1980",
+    genre: "Suspense Master",
+    lifespan: "1899 - 1980",
     image: "/placeholder.svg?height=400&width=400",
-    contribution: ["Suspense", "Camera Techniques", "Psychological Thriller"],
     bio: "The Master of Suspense who defined the thriller genre with innovative camera work and psychological storytelling in Psycho and Vertigo.",
+    famousWorks: ["Psycho", "Vertigo", "North by Northwest", "Rear Window"],
+  },
+  {
+    id: "7",
+    name: "Chirstopher Haland",
+    genre: "Comedy Director",
+    lifespan: "1956 - 2000",
+    image: "/placeholder.svg?height=400&width=400",
+    bio: "The Master of comedy who defined the thriller genre with innovative camera work and psychological storytelling in Psycho and Vertigo.",
+    famousWorks: ["Comedy King", "Halando", "South by southest", "Rear Window"],
   },
 ]
 
@@ -115,44 +132,71 @@ export default function TributeSection() {
                 initial={{ opacity: 0, y: 30 }}
                 animate={inView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
-                className="group relative bg-zinc-900/50 backdrop-blur-sm rounded-xl overflow-hidden border border-zinc-800 hover:border-zinc-600 transition-all duration-300 mx-4"
-                style={{ width: `${100 / 3}%`, flexShrink: 0 }}
+                className="group relative bg-zinc-900/50 backdrop-blur-sm rounded-xl overflow-hidden border border-zinc-800 hover:border-amber-500/50 transition-all duration-300 mx-4"
+                style={{ width: `${100 / 4}%`, flexShrink: 0, height: "380px" }}
               >
-                <div className="relative h-80 overflow-hidden">
-                  <Image
-                    src={legend.image || "/placeholder.svg"}
-                    alt={legend.name}
-                    fill
-                    className="object-cover grayscale group-hover:grayscale-0 transition-all duration-500 group-hover:scale-105"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+                {/* Upper Section - Yellowish Background with Photo and Info */}
+                <div className="relative bg-gradient-to-r from-amber-400/90 via-yellow-400/90 to-amber-500/90 p-5 h-36">
+                  {/* Lifespan in top-right corner */}
+                  <div className="absolute top-3 right-3 bg-black/20 backdrop-blur-sm px-3 py-1 rounded-full">
+                    <span className="text-black text-sm font-medium flex items-center">
+                      <Calendar className="w-3 h-3 mr-1" />
+                      {legend.lifespan}
+                    </span>
+                  </div>
 
-                  {/* Years overlay */}
-                  <div className="absolute top-4 right-4 bg-black/70 backdrop-blur-sm px-3 py-1 rounded-full">
-                    <span className="text-white text-sm font-medium">{legend.years}</span>
+                  <div className="flex items-center gap-4">
+                    {/* Profile Photo - Bigger */}
+                    <div className="relative flex-shrink-0">
+                      <div className="w-24 h-24 rounded-full overflow-hidden border-3 border-black/20 shadow-lg">
+                        <Image
+                          src={legend.image || "/placeholder.svg"}
+                          alt={legend.name}
+                          width={96}
+                          height={96}
+                          className="object-cover grayscale group-hover:grayscale-0 transition-all duration-500 group-hover:scale-105"
+                        />
+                      </div>
+                      <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-black rounded-full flex items-center justify-center">
+                        <Star className="w-3 h-3 text-amber-400" />
+                      </div>
+                    </div>
+
+                    {/* Name and Genre */}
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-xl font-bold text-black mb-1 truncate">{legend.name}</h3>
+                      <p className="text-black/80 text-sm font-medium">{legend.genre}</p>
+                    </div>
                   </div>
                 </div>
 
-                <div className="p-6">
-                  <h3 className="text-2xl font-bold text-white mb-2">{legend.name}</h3>
-
-                  {/* Contribution tags */}
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {legend.contribution.map((contrib, i) => (
-                      <span
-                        key={i}
-                        className="bg-amber-500/20 text-amber-300 text-xs px-2 py-1 rounded-full border border-amber-500/30"
-                      >
-                        {contrib}
-                      </span>
-                    ))}
+                {/* Lower Section - Biography and Notable Works */}
+                <div className="p-5 flex flex-col h-[244px]">
+                  {/* Biography */}
+                  <div className="mb-4 flex-1">
+                    <p className="text-gray-300 text-sm leading-relaxed line-clamp-4">{legend.bio}</p>
                   </div>
 
-                  <p className="text-gray-300 text-sm leading-relaxed">{legend.bio}</p>
+                  {/* Notable Works */}
+                  <div className="border-t border-zinc-700 pt-4 mt-auto">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Film className="w-4 h-4 text-amber-400" />
+                      <h4 className="text-sm font-semibold text-white">Notable Works</h4>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {legend.famousWorks.map((work, workIndex) => (
+                        <span
+                          key={workIndex}
+                          className="px-2 py-1 bg-amber-500/10 text-xs text-amber-300 rounded border border-amber-500/20 hover:border-amber-500/40 transition-colors"
+                        >
+                          {work}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
                 </div>
 
-                {/* Decorative element */}
+                {/* Decorative gradient line */}
                 <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               </motion.div>
             ))}
