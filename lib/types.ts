@@ -68,6 +68,17 @@ export type NewsArticle = {
   image: string; // this will be derived from `featuredCoverPhoto`
 };
 
+export type FeaturedNews = {
+  id: string;
+  title: string;
+  date: string;
+  category: string;
+  shortDescription: string;
+  newsUrl?: string;
+  image: string; // this will be derived from `featuredCoverPhoto`
+  isFeatured?: boolean;
+};
+
 
 
 
@@ -231,15 +242,3 @@ export interface FeaturedWork {
 }
 
 
-// Project type
-// export interface Project {
-//   id: string
-//   title: string
-//   description: string
-//   image?: string
-//   year: string
-//   director?: string
-//   category: string
-//   tags: string[]
-  
-// }

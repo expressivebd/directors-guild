@@ -7,10 +7,10 @@ import Link from "next/link"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { format } from "date-fns"
-import type { NewsArticle } from "@/lib/types"
+import type { FeaturedNews } from "@/lib/types"
 
 interface NewsSectionProps {
-  articles: NewsArticle[]
+  articles: FeaturedNews[]
 }
 
 export default function NewsSection({ articles }: NewsSectionProps) {
@@ -21,12 +21,9 @@ export default function NewsSection({ articles }: NewsSectionProps) {
 
   if (!articles || articles.length === 0) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {[...Array(3)].map((_, index) => (
-          <Card key={index} className="bg-zinc-800 animate-pulse h-[350px]">
-            <CardContent className="p-0"></CardContent>
-          </Card>
-        ))}
+      <div className="mx-auto text-center text-2xl text-red-400">
+      
+        No featured news articles found!
       </div>
     )
   }
@@ -40,7 +37,7 @@ export default function NewsSection({ articles }: NewsSectionProps) {
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.5, delay: index * 0.1 }}
         >
-          <Link href={`/news/${article.id}`}>
+          <Link href={article.newsUrl} target="_blank" rel="noopener noreferrer">
             <Card className="bg-zinc-800 overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-1 h-full">
               <CardContent className="p-0 h-full flex flex-col">
                 <div className="relative h-[200px]">
@@ -54,7 +51,7 @@ export default function NewsSection({ articles }: NewsSectionProps) {
                     <span className="ml-2 text-gray-400 text-xs">{format(new Date(article.date), "MMM d, yyyy")}</span>
                   </div>
                   <h3 className="text-xl font-bold mb-3">{article.title}</h3>
-                  <p className="text-sm text-gray-300 mb-4 flex-grow">{article.excerpt}</p>
+                  <p className="text-sm text-gray-300 mb-4 flex-grow">{article.shortDescription}</p>
                   <Button variant="link" className="p-0 h-auto w-fit text-green-500 hover:text-green-400">
                     Read More
                   </Button>

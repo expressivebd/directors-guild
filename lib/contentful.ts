@@ -1,5 +1,5 @@
 import { Asset, createClient, Entry } from 'contentful';
-import type { DirectoryEntry, NewsArticle, Partner, FeaturedWork, Event, CarouselItem } from './types';
+import type { DirectoryEntry, NewsArticle, Partner, FeaturedWork, Event, CarouselItem, FeaturedNews } from './types';
 import { documentToPlainTextString } from '@contentful/rich-text-plain-text-renderer';
 import { Document } from "@contentful/rich-text-types"
 
@@ -68,6 +68,39 @@ export async function fetchNewsArticles(): Promise<NewsArticle[]> {
         shortDescription: item.fields.shortDescription,
         newsUrl: item.fields.newsUrl,
         image: imageUrl, // now always valid
+      };
+    });
+  } catch (error) {
+    console.error('Error fetching news articles:', error);
+    return [];
+  }
+}
+
+
+//fetching featured news for home news-section
+export async function fetchFeaturedNews(): Promise<FeaturedNews[]> {
+  try {
+    const client = getContentfulClient();
+    const entries = await client.getEntries({ 
+      content_type: 'homeFeaturedNews',
+      'fields.isFeatured': true, 
+    });
+
+    return entries.items.map((item: any) => {
+      const imageUrl =
+        item.fields.featuredCoverPhoto?.fields?.file?.url
+          ? `https:${item.fields.featuredCoverPhoto.fields.file.url}`
+          : "/placeholder.svg";
+
+      return {
+        id: item.sys.id,
+        title: item.fields.title,
+        date: item.fields.date,
+        category: item.fields.category,
+        shortDescription: item.fields.shortDescription,
+        newsUrl: item.fields.newsUrl,
+        image: imageUrl, // now always valid
+
       };
     });
   } catch (error) {

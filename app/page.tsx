@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { fetchFeaturedProjects, fetchUpcomingEvents, fetchNewsArticles } from "@/lib/api"
+import { fetchFeaturedProjects, fetchUpcomingEvents } from "@/lib/api"
 import HomeCarousel from "@/components/home/carousel"
 import FeaturedSection from "@/components/home/featured-section"
 import EventsSection from "@/components/home/events-section"
@@ -8,6 +8,7 @@ import NewsSection from "@/components/home/news-section" // Added import
 import PollSection from "@/components/home/poll-section"
 import TributeSection from "@/components/home/tribute-section"
 import WideAdPanel from "@/components/ads/wide-ad-panel"
+import { fetchFeaturedNews } from "@/lib/contentful"
 
 
 
@@ -15,7 +16,7 @@ export default async function Home() {
   // Fetch data on the server
   const featuredProjects = await fetchFeaturedProjects()
   const upcomingEvents = await fetchUpcomingEvents()
-  const newsArticles = await fetchNewsArticles()
+  const newsArticles = await fetchFeaturedNews()
 
   return (
     <div className="relative">
