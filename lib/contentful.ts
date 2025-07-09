@@ -1,5 +1,5 @@
 import { Asset, createClient, Entry } from 'contentful';
-import type { DirectoryEntry, NewsArticle, Partner, FeaturedWork, Event, CarouselItem, FeaturedNews } from './types';
+import type { DirectoryEntry, NewsArticle, Partner, FeaturedWork, Event, CarouselItem, FeaturedNews, Legends} from './types';
 import { documentToPlainTextString } from '@contentful/rich-text-plain-text-renderer';
 import { Document } from "@contentful/rich-text-types"
 
@@ -150,7 +150,6 @@ export async function fetchDirectoryEntries(): Promise<DirectoryEntry[]> {
 
 
 //fetching Partner Entries
-
 export async function fetchPartners(): Promise<Partner[]> {
   try {
     const client = getContentfulClient();
@@ -202,7 +201,6 @@ export async function fetchPartners(): Promise<Partner[]> {
 }
 
 //fetching events
-
 export const getEvents = async (): Promise<Event[]> => {
   try {
     const client = getContentfulClient();
@@ -367,29 +365,54 @@ export async function testContentfulConnection() {
 }
 
 // Test function to debug carousel items
-export async function testCarouselConnection() {
+// export async function testCarouselConnection() {
+//   try {
+//     console.log('🧪 Testing carousel items connection...');
+//     const client = getContentfulClient();
+    
+//     // Test: Get all entries from carouselItems (without filters)
+//     const allEntries = await client.getEntries({ content_type: 'carouselItems' });
+//     console.log('📦 All carousel entries:', {
+//       total: allEntries.total,
+//       items: allEntries.items.length,
+//       entries: allEntries.items.map(item => ({
+//         id: item.sys.id,
+//         title: item.fields?.title,
+//         isFeatured: item.fields?.isFeatured,
+//         fields: Object.keys(item.fields || {})
+//       }))
+//     });
+    
+//     return true;
+//   } catch (error) {
+//     console.error('❌ Carousel connection test failed:', error);
+//     return false;
+//   }
+// }
+
+// Fetching Legends for Tribute Section
+
+export async function fetchLegends(): Promise<Legends[]> {
   try {
-    console.log('🧪 Testing carousel items connection...');
     const client = getContentfulClient();
-    
-    // Test: Get all entries from carouselItems (without filters)
-    const allEntries = await client.getEntries({ content_type: 'carouselItems' });
-    console.log('📦 All carousel entries:', {
-      total: allEntries.total,
-      items: allEntries.items.length,
-      entries: allEntries.items.map(item => ({
-        id: item.sys.id,
-        title: item.fields?.title,
-        isFeatured: item.fields?.isFeatured,
-        fields: Object.keys(item.fields || {})
-      }))
+    const entries = await client.getEntries({
+      content_type: 'legends',
     });
-    
-    return true;
+
+    console.log(JSON.stringify(entries.items, null, 2));
+    return entries.items.map((item: any) => ({
+      id: item.sys.id,
+      name: item.fields.name,
+      genre: item.fields.workGenre,
+      lifespan: item.fields.lifespan,
+      image: item.fields.profilePhoto?.fields?.file?.url
+        ? `https:${item.fields.profilePhoto.fields.file.url}`
+        : '/placeholder.svg?height=600&width=400',
+      bio: item.fields.biography,
+      famousWorks: item.fields.famousWorks || [],
+    }));
   } catch (error) {
-    console.error('❌ Carousel connection test failed:', error);
-    return false;
+    console.error('Error fetching legends:', error);
+    return [];
   }
 }
-
-//Fetch hero carousel entries

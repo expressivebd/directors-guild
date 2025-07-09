@@ -241,4 +241,12 @@ export interface FeaturedWork {
   redirectURL: string;
 }
 
-
+export interface Legends {
+  id: string
+  name: string
+  genre: string
+  lifespan: string
+  image: string
+  bio: string
+  famousWorks: string[]
+}

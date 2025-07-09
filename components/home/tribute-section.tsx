@@ -6,100 +6,39 @@ import { useInView } from "react-intersection-observer"
 import { useEffect, useState } from "react"
 import { Star, Calendar, Film } from "lucide-react"
 
-interface Legend {
-  id: string
-  name: string
-  genre: string
-  lifespan: string
-  image: string
-  bio: string
-  famousWorks: string[]
-}
+import type { Legends } from "@/lib/types"
+import { fetchLegends } from "@/lib/contentful"
 
-const legends: Legend[] = [
-  {
-    id: "1",
-    name: "Stanley Kubrick",
-    genre: "Visionary Director",
-    lifespan: "1928 - 1999",
-    image: "/placeholder.svg?height=400&width=400",
-    bio: "Visionary director known for meticulous attention to detail and groundbreaking visual techniques in films like 2001: A Space Odyssey and The Shining.",
-    famousWorks: ["2001: A Space Odyssey", "The Shining", "A Clockwork Orange", "Full Metal Jacket"],
-  },
-  {
-    id: "2",
-    name: "Akira Kurosawa",
-    genre: "Epic Director",
-    lifespan: "1910 - 1998",
-    image: "/placeholder.svg?height=400&width=400",
-    bio: "Japanese master filmmaker who revolutionized cinema with dynamic camera work and epic storytelling in Seven Samurai and Rashomon.",
-    famousWorks: ["Seven Samurai", "Rashomon", "Yojimbo", "Ikiru"],
-  },
-  {
-    id: "3",
-    name: "Orson Welles",
-    genre: "Innovative Director",
-    lifespan: "1915 - 1985",
-    image: "/placeholder.svg?height=400&width=400",
-    bio: "Pioneering director and actor who changed cinema forever with Citizen Kane, introducing innovative camera techniques and narrative structures.",
-    famousWorks: ["Citizen Kane", "Touch of Evil", "The Magnificent Ambersons", "Chimes at Midnight"],
-  },
-  {
-    id: "4",
-    name: "Federico Fellini",
-    genre: "Surrealist Director",
-    lifespan: "1920 - 1993",
-    image: "/placeholder.svg?height=400&width=400",
-    bio: "Italian maestro known for his distinctive style blending fantasy and reality in masterpieces like 8½ and La Dolce Vita.",
-    famousWorks: ["8½", "La Dolce Vita", "Amarcord", "La Strada"],
-  },
-  {
-    id: "5",
-    name: "Ingmar Bergman",
-    genre: "Psychological Director",
-    lifespan: "1918 - 2007",
-    image: "/placeholder.svg?height=400&width=400",
-    bio: "Swedish director who explored the human condition with unparalleled depth in films like The Seventh Seal and Persona.",
-    famousWorks: ["The Seventh Seal", "Persona", "Wild Strawberries", "Cries and Whispers"],
-  },
-  {
-    id: "6",
-    name: "Alfred Hitchcock",
-    genre: "Suspense Master",
-    lifespan: "1899 - 1980",
-    image: "/placeholder.svg?height=400&width=400",
-    bio: "The Master of Suspense who defined the thriller genre with innovative camera work and psychological storytelling in Psycho and Vertigo.",
-    famousWorks: ["Psycho", "Vertigo", "North by Northwest", "Rear Window"],
-  },
-  {
-    id: "7",
-    name: "Chirstopher Haland",
-    genre: "Comedy Director",
-    lifespan: "1956 - 2000",
-    image: "/placeholder.svg?height=400&width=400",
-    bio: "The Master of comedy who defined the thriller genre with innovative camera work and psychological storytelling in Psycho and Vertigo.",
-    famousWorks: ["Comedy King", "Halando", "South by southest", "Rear Window"],
-  },
-]
 
 export default function TributeSection() {
   const [ref, inView] = useInView({
     triggerOnce: true,
     threshold: 0.1,
   })
-
+  const [legends, setLegends] = useState<Legends[]>([])
   const [currentIndex, setCurrentIndex] = useState(0)
+
+  // Fetch legends data
+
+  useEffect(() =>{
+    const loadLegends = async () =>{
+      const data = await fetchLegends()
+      setLegends(data)
+    }
+
+    loadLegends()
+  }, [])
 
   // Auto-slide functionality
   useEffect(() => {
-    if (!inView) return
-
+    if (!inView || legends.length === 0) return
     const interval = setInterval(() => {
-      setCurrentIndex((prevIndex) => (prevIndex + 1) % legends.length)
-    }, 4000) // Slide every 4 seconds
-
+      setCurrentIndex(prev => (prev + 1) % legends.length)
+    }, 4000)
     return () => clearInterval(interval)
-  }, [inView])
+  }, [inView, legends])
+
+  
 
   return (
     <section className="py-20 bg-gradient-to-b from-zinc-900/70 to-black relative overflow-hidden">
@@ -118,12 +57,11 @@ export default function TributeSection() {
         </motion.div>
 
         {/* Carousel Container */}
-        <div className="relative overflow-hidden">
+        <div className="relative overflow-hidden lg:px-8">
           <motion.div
-            className="flex transition-transform duration-1000 ease-in-out"
+            className="flex transition-transform duration-1000 ease-in-out lg:gap-8"
             style={{
-              transform: `translateX(-${currentIndex * (100 / 3)}%)`,
-              width: `${(legends.length * 100) / 3}%`,
+              transform: `translateX(-${currentIndex * 100}%)`,
             }}
           >
             {legends.map((legend, index) => (
@@ -132,11 +70,13 @@ export default function TributeSection() {
                 initial={{ opacity: 0, y: 30 }}
                 animate={inView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
-                className="group relative bg-zinc-900/50 backdrop-blur-sm rounded-xl overflow-hidden border border-zinc-800 hover:border-amber-500/50 transition-all duration-300 mx-4"
-                style={{ width: `${100 / 4}%`, flexShrink: 0, height: "380px" }}
+                className="group relative bg-zinc-900/50 backdrop-blur-sm rounded-xl overflow-hidden border border-zinc-800 hover:border-amber-500/50 transition-all duration-300 flex-shrink-0 snap-start
+                  w-[calc(100%-2rem)] lg:w-[500px] xl:w-[672px]
+                  h-[360px] sm:h-[360px] md:h-[380px] mx-4 lg:mx-0"
               >
                 {/* Upper Section - Yellowish Background with Photo and Info */}
-                <div className="relative bg-gradient-to-r from-amber-400/90 via-yellow-400/90 to-amber-500/90 p-5 h-36">
+                <div className="relative bg-gradient-to-r from-amber-400/90 via-yellow-400/90 to-amber-500/90 p-3 sm:p-4 md:p-5 h-32 sm:h-36">
+
                   {/* Lifespan in top-right corner */}
                   <div className="absolute top-3 right-3 bg-black/20 backdrop-blur-sm px-3 py-1 rounded-full">
                     <span className="text-black text-sm font-medium flex items-center">
@@ -148,13 +88,14 @@ export default function TributeSection() {
                   <div className="flex items-center gap-4">
                     {/* Profile Photo - Bigger */}
                     <div className="relative flex-shrink-0">
-                      <div className="w-24 h-24 rounded-full overflow-hidden border-3 border-black/20 shadow-lg">
+                      <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full overflow-hidden border-3 border-black/20 shadow-lg">
+
                         <Image
                           src={legend.image || "/placeholder.svg"}
                           alt={legend.name}
-                          width={96}
-                          height={96}
-                          className="object-cover grayscale group-hover:grayscale-0 transition-all duration-500 group-hover:scale-105"
+                          width={112}
+                          height={112}
+                          className="object-contain grayscale group-hover:grayscale-0 transition-all duration-500 group-hover:scale-105"
                         />
                       </div>
                       <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-black rounded-full flex items-center justify-center">
@@ -164,8 +105,8 @@ export default function TributeSection() {
 
                     {/* Name and Genre */}
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-xl font-bold text-black mb-1 truncate">{legend.name}</h3>
-                      <p className="text-black/80 text-sm font-medium">{legend.genre}</p>
+                      <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-black mb-1 truncate">{legend.name}</h3>
+                      <p className="text-black/80 text-sm font-medium">{legend.genre} Director</p>
                     </div>
                   </div>
                 </div>
@@ -173,8 +114,10 @@ export default function TributeSection() {
                 {/* Lower Section - Biography and Notable Works */}
                 <div className="p-5 flex flex-col h-[244px]">
                   {/* Biography */}
-                  <div className="mb-4 flex-1">
-                    <p className="text-gray-300 text-sm leading-relaxed line-clamp-4">{legend.bio}</p>
+                  <div className="mb-4 flex-1 overflow-y-auto max-h-[110px] pr-1">
+                    <p className="text-gray-100 text-xs sm:text-sm md:text-base leading-relaxed">
+                      {legend.bio}
+                    </p>
                   </div>
 
                   {/* Notable Works */}
@@ -183,16 +126,17 @@ export default function TributeSection() {
                       <Film className="w-4 h-4 text-amber-400" />
                       <h4 className="text-sm font-semibold text-white">Notable Works</h4>
                     </div>
-                    <div className="flex flex-wrap gap-2">
-                      {legend.famousWorks.map((work, workIndex) => (
-                        <span
-                          key={workIndex}
-                          className="px-2 py-1 bg-amber-500/10 text-xs text-amber-300 rounded border border-amber-500/20 hover:border-amber-500/40 transition-colors"
-                        >
-                          {work}
-                        </span>
-                      ))}
-                    </div>
+                      <div className="flex gap-2 overflow-x-auto whitespace-nowrap pr-1 scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-transparent">
+                        {legend.famousWorks.map((work, workIndex) => (
+                          <span
+                            key={workIndex}
+                            className="px-2 py-1 bg-amber-500/10 text-xs text-amber-300 rounded border border-amber-500/20 hover:border-amber-500/40 transition-colors whitespace-nowrap mb-2"
+                          >
+                            {work}
+                          </span>
+                        ))}
+                      </div>
+
                   </div>
                 </div>
 
