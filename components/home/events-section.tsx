@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { CalendarIcon, MapPinIcon, ClockIcon } from "lucide-react"
 import type { Event } from "@/lib/types"
 import { format } from "date-fns"
+import { documentToPlainTextString } from '@contentful/rich-text-plain-text-renderer';
 
 interface EventsSectionProps {
   events: Event[]
@@ -20,18 +21,7 @@ export default function EventsSection({ events }: EventsSectionProps) {
     threshold: 0.1,
   })
 
-  if (!events || events.length === 0) {
-    return (
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {[...Array(3)].map((_, index) => (
-          <Card key={index} className="bg-zinc-800 animate-pulse h-[350px]">
-            <CardContent className="p-0"></CardContent>
-          </Card>
-        ))}
-      </div>
-    )
-  }
-
+  
   return (
     <div ref={ref} className="grid grid-cols-1 md:grid-cols-3 gap-6">
       {events.map((event, index) => (

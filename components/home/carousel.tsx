@@ -5,7 +5,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
-import { fetchCarouselItems, testCarouselConnection } from "@/lib/contentful"
+import { fetchCarouselItems } from "@/lib/contentful"
 import type { CarouselItem } from "@/lib/types"
 import { ChevronLeft, ChevronRight, ChevronDown } from "lucide-react"
 

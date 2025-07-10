@@ -7,7 +7,7 @@ import { Document } from "@contentful/rich-text-types"
 export interface Event {
   id: string
   title: string
-  description?: Document
+  description?: string
   image?: string
   date: string
   time: string
@@ -21,7 +21,7 @@ export interface Event {
   venueAddress?: string
   ticketPrice?: string
   dresscode?: string
-  agenda?: Document
+  agenda?: string
   speakers?: string[]
   requirements?: string
   contact?: string

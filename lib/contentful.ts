@@ -14,11 +14,6 @@ function getContentfulClient() {
   const spaceId = process.env.CONTENTFUL_SPACE_ID;
   const accessToken = process.env.CONTENTFUL_ACCESS_TOKEN;
 
-  console.log('🔧 Environment check:', {
-    spaceId: spaceId ? `${spaceId.substring(0, 8)}...` : 'undefined',
-    accessToken: accessToken ? `${accessToken.substring(0, 8)}...` : 'undefined'
-  });
-
   if (!spaceId) {
     console.warn('Using fallback client due to missing environment variables');
     return client; // Use the direct client as fallback
@@ -221,7 +216,7 @@ export const getEvents = async (): Promise<Event[]> => {
       return {
         id: item.sys.id,
         title: fields.eventName,
-        description: fields.description, // Rich Text (Document)
+        description: documentToPlainTextString(fields.description), // Rich Text (Document)
         image: imageUrl,
         date: fields.date,
         time: fields.time,
@@ -233,7 +228,7 @@ export const getEvents = async (): Promise<Event[]> => {
         venue: fields.venue,
         ticketPrice: fields.ticketPrice?.toString(),
         dresscode: fields.dresscode ?? undefined,
-        agenda: fields.agenda, // Rich Text (Document)
+        agenda: documentToPlainTextString(fields.agenda), // Rich Text (Document)
         speakers: fields.speakers ?? [],
         requirements: fields.requirements,
         contact: fields.contact,
