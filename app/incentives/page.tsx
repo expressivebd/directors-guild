@@ -1,7 +1,7 @@
 import PageHeader from "@/components/layout/page-header"
 import IncentivesDisplay from "@/components/incentives/incentives-display"
 import IncentivesList from "@/components/incentives/incentives-list"
-import { fetchIncentives } from "@/lib/api"
+import { fetchIncentives } from "@/lib/incentive-data"
 
 export default async function IncentivesPage() {
   // Fetch incentives data
