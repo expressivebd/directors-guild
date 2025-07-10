@@ -8,8 +8,12 @@ import Navbar from "@/components/layout/navbar"
 import Footer from "@/components/layout/footer"
 import AdPopupManager from "@/components/ads/ad-popup-manager"
 import { AuthProvider } from "@/lib/auth-provider"
+import NewsMarquee from "@/components/layout/news-marquee"
+import { fetchNewsArticles } from "@/lib/contentful"
 
 const inter = Inter({ subsets: ["latin"] })
+
+const newsArticles = await fetchNewsArticles();
 
 export const metadata: Metadata = {
   title: "Directors Guild",
@@ -18,16 +22,23 @@ export const metadata: Metadata = {
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={cn(inter.className, "bg-black text-white")}>
         <AuthProvider>
           <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} disableTransitionOnChange>
-            <Navbar />
-            {children}
-            <Footer />
-            {/* Global ad manager – appears on every page */}
+            <div className="flex flex-col min-h-screen relative z-10">
+                <Navbar />
+                <main className="flex-1 relative">{children}</main>
+                <Footer />
+
+                <div className="fixed bottom-0 left-0 right-0 z-40 bg-zinc-900/95 backdrop-blur-md border-t border-zinc-800">
+                  <NewsMarquee articles={newsArticles} />
+                </div>
+              </div>
             <AdPopupManager />
+            
           </ThemeProvider>
         </AuthProvider>
       </body>

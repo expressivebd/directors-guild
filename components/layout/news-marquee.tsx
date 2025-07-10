@@ -20,7 +20,6 @@ export default function NewsMarquee({ articles }: NewsMarqueeProps) {
   useEffect(() => {
     // Duplicate articles to ensure continuous scrolling
     setDuplicatedArticles([...articles, ...articles, ...articles])
-
     // Measure container and content width for animation
     if (containerRef.current) {
       setContainerWidth(containerRef.current.offsetWidth)
