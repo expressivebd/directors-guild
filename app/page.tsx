@@ -8,9 +8,9 @@ import NewsSection from "@/components/home/news-section" // Added import
 import PollSection from "@/components/home/poll-section"
 import TributeSection from "@/components/home/tribute-section"
 import WideAdPanel from "@/components/ads/wide-ad-panel"
-import { fetchFeaturedNews, getEvents } from "@/lib/contentful"
-
-
+import { fetchFeaturedNews, getEvents, getFeaturedAds} from "@/lib/contentful"
+import type { AdItem } from "@/lib/types"
+import { AdContext } from "@/context/ad-context"
 
 export default async function Home() {
   // Fetch data on the server
@@ -23,7 +23,11 @@ export default async function Home() {
 
   const newsArticles = await fetchFeaturedNews()
 
+  const ads = await getFeaturedAds()
+
   return (
+    
+    
     <div className="relative">
       {/* Full Screen Carousel Section */}
       <section className="h-screen w-full relative overflow-hidden" id="carousel-section">
@@ -31,7 +35,8 @@ export default async function Home() {
       </section>
 
       {/* Ad Panel 1 */}
-      <WideAdPanel />
+      
+      <WideAdPanel ad={ads[0]} />
 
       {/* Poll Section */}
       <section className="py-12 bg-transparent">
@@ -41,7 +46,7 @@ export default async function Home() {
       </section>
 
       {/* Ad Panel 2 */}
-      <WideAdPanel />
+      <WideAdPanel ad={ads[1]}/>
 
       {/* Featured Projects Section */}
       <section className="py-20 bg-gradient-to-b from-transparent to-zinc-900/70 relative">
@@ -66,7 +71,7 @@ export default async function Home() {
       </section>
 
       {/* Ad Panel 3 */}
-      <WideAdPanel />
+      <WideAdPanel ad={ads[2]}/>
 
       {/* Events Section */}
       <section className="py-20 bg-zinc-900/70 backdrop-blur-sm relative">
@@ -89,7 +94,7 @@ export default async function Home() {
       </section>
 
       {/* Ad Panel 4 */}
-      <WideAdPanel />
+      <WideAdPanel ad={ads[3]} />
 
       {/* News Section - Added */}
       <section className="py-20 bg-zinc-900/70 backdrop-blur-sm relative">
@@ -112,13 +117,13 @@ export default async function Home() {
       </section>
 
       {/* Ad Panel 5 */}
-      <WideAdPanel />
+      <WideAdPanel ad={ads[4]}/>
 
       {/* Tribute Section */}
       <TributeSection />
 
       {/* Ad Panel 5 */}
-      <WideAdPanel />
+      <WideAdPanel ad={ads[5]}/>
 
       {/* Call to Action */}
       <section className="py-20 bg-transparent">
@@ -137,6 +142,10 @@ export default async function Home() {
 
       {/* Bottom padding to prevent content from being hidden behind fixed marquee */}
       <div className="h-16"></div>
+
+      
     </div>
+   
+    
   )
 }

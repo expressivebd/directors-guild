@@ -259,3 +259,11 @@ export interface Legends {
   bio: string
   famousWorks: string[]
 }
+
+
+export interface AdItem {
+  id: string;
+  imageUrl: string;
+  link: string;
+  isFeatred?: boolean;
+}

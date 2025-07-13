@@ -1,5 +1,5 @@
 import { Asset, createClient, Entry } from 'contentful';
-import type { DirectoryEntry, NewsArticle, Partner, FeaturedWork, Event, CarouselItem, FeaturedNews, Legends, GalleryEvent, GalleryMedia} from './types';
+import type { DirectoryEntry, NewsArticle, Partner, FeaturedWork, Event, CarouselItem, FeaturedNews, Legends, GalleryEvent, GalleryMedia, AdItem} from './types';
 import { documentToPlainTextString } from '@contentful/rich-text-plain-text-renderer';
 import { Document } from "@contentful/rich-text-types"
 
@@ -443,3 +443,25 @@ export async function fetchGalleryMedia(): Promise<GalleryEvent[]> {
     };
   });
 }
+
+// fetching home ad section items
+export async function getFeaturedAds(): Promise<AdItem[]> {
+  const res = await client.getEntries({
+    content_type: "homeAdSections",
+    "fields.isFeatured": true,
+    order: ["-sys.createdAt"],
+    limit: 6,
+  })
+
+  return res.items.map((item: any) => {
+    const file = item.fields.adCoverPhoto?.fields?.file
+    const imageUrl = file?.url?.startsWith("https") ? file.url : `https:${file?.url}`
+
+    return {
+      id: item.sys.id,
+      imageUrl,
+      link: item.fields.link || "#",
+    }
+  })
+}
+

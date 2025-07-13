@@ -1,12 +1,18 @@
 "use client"
 
+import Image from "next/image"
+import Link from "next/link"
 import { motion } from "framer-motion"
+import type { AdItem } from "@/lib/types"
 
 interface WideAdPanelProps {
+  ad?: AdItem
   className?: string
 }
 
-export default function WideAdPanel({ className = "" }: WideAdPanelProps) {
+export default function WideAdPanel({ ad, className = "" }: WideAdPanelProps) {
+  if (!ad) return null
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -16,16 +22,18 @@ export default function WideAdPanel({ className = "" }: WideAdPanelProps) {
       className={`w-full py-8 ${className}`}
     >
       <div className="container mx-auto px-4">
-        <div className="bg-zinc-900/80 backdrop-blur-md border border-zinc-700 rounded-xl p-8 text-center">
-          <p className="text-xs text-zinc-400 mb-4 uppercase tracking-wider">Advertisement</p>
-          <div className="bg-zinc-800/50 rounded-lg h-32 flex items-center justify-center">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-blue-500 rounded-full mx-auto mb-4 opacity-60"></div>
-              <p className="text-zinc-400 text-sm">Wide Advertisement Space</p>
-              <p className="text-zinc-500 text-xs mt-1">728 x 90</p>
-            </div>
+        <Link href={ad.link || "#"} target="_blank" rel="noopener noreferrer">
+          <div className="relative w-full h-32 md:h-40 lg:h-44 xl:h-52 overflow-hidden rounded-xl bg-zinc-900 flex items-center justify-center">
+            <Image
+              src={ad.imageUrl}
+              alt="Advertisement"
+              fill
+              className="object-contain"
+              sizes="(max-width: 768px) 100vw, 728px"
+              priority
+            />
           </div>
-        </div>
+        </Link>
       </div>
     </motion.div>
   )
