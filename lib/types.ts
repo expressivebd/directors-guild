@@ -158,32 +158,41 @@ export interface Branch {
   email?: string
 }
 
-// Partner type (formerly Incentive)
-// export interface Partner {
-//   id: string
-//   brandName: string
-//   brandLogo?: string
-//   discountPercentage: number
-//   discountDetails: string
-//   shortDescription: string
-//   description: string
-//   category: string
-//   redemptionInstructions: string
-//   termsAndConditions?: string
-//   expiryDate?: string
-//   locations?: string
-//   website?: string
-//   branches?: Branch[]
-// }
 
-export interface GalleryImage {
+export interface Incentive {
   id: string
-  title: string
+  brandName: string
+  brandLogo?: string
+  discountPercentage: number
+  discountDetails: string
+  shortDescription: string
   description: string
-  url: string
   category: string
-  date: string
-  tags: string[]
+  redemptionInstructions: string
+  termsAndConditions?: string
+  expiryDate?: string
+  locations?: string
+  website?: string
+  branches?: Branch[]
+}
+
+// Gallery Media type (supports both images and videos)
+export interface GalleryMedia {
+  id: string;
+  title: string;
+  description: string;
+  type: "image" | "video";
+  category: string;
+  date: string;
+  thumbnailUrl?: string; // Optional for images, required for videos
+}
+
+export interface GalleryEvent {
+  id: string;
+  name: string;
+  description: string;
+  date: string;
+  media: GalleryMedia[];
 }
 
 //// new entries

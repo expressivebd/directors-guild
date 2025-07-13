@@ -1,5 +1,5 @@
 import { Asset, createClient, Entry } from 'contentful';
-import type { DirectoryEntry, NewsArticle, Partner, FeaturedWork, Event, CarouselItem, FeaturedNews, Legends} from './types';
+import type { DirectoryEntry, NewsArticle, Partner, FeaturedWork, Event, CarouselItem, FeaturedNews, Legends, GalleryEvent, GalleryMedia} from './types';
 import { documentToPlainTextString } from '@contentful/rich-text-plain-text-renderer';
 import { Document } from "@contentful/rich-text-types"
 
@@ -386,7 +386,6 @@ export async function testContentfulConnection() {
 // }
 
 // Fetching Legends for Tribute Section
-
 export async function fetchLegends(): Promise<Legends[]> {
   try {
     const client = getContentfulClient();
@@ -410,4 +409,37 @@ export async function fetchLegends(): Promise<Legends[]> {
     console.error('Error fetching legends:', error);
     return [];
   }
+}
+
+//fetchng gallery items
+export async function fetchGalleryMedia(): Promise<GalleryEvent[]> {
+  const res = await client.getEntries({ content_type: 'gallery', include: 2 });
+
+  return res.items.map((item: any) => {
+    const fields = item.fields;
+
+    const media: GalleryMedia[] = (fields.eventPhotos || []).map((asset: any) => {
+      const file = asset.fields.file;
+      const contentType = file.contentType;
+      const isVideo = contentType.startsWith('video');
+
+      return {
+        id: asset.sys.id,
+        title: asset.fields.title ?? '',
+        description: asset.fields.description ?? '',
+        url: file.url.startsWith('https') ? file.url : `https:${file.url}`,
+        type: isVideo ? 'video' : 'image',
+        category: fields.category ?? '',
+        date: fields.date ?? '',
+      };
+    });
+
+    return {
+      id: item.sys.id,
+      name: fields.eventName,
+      description: fields.shortDescription ?? '',
+      date: fields.date ?? '',
+      media,
+    };
+  });
 }
