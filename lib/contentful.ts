@@ -1,5 +1,5 @@
 import { Asset, createClient, Entry } from 'contentful';
-import type { DirectoryEntry, NewsArticle, Partner, FeaturedWork, Event, CarouselItem, FeaturedNews, Legends, GalleryEvent, GalleryMedia, AdItem} from './types';
+import type { DirectoryEntry, NewsArticle, Partner, FeaturedWork, Event, CarouselItem, FeaturedNews, Legends, GalleryEvent, GalleryMedia, AdItem, AdCreative} from './types';
 import { documentToPlainTextString } from '@contentful/rich-text-plain-text-renderer';
 import { Document } from "@contentful/rich-text-types"
 
@@ -444,6 +444,7 @@ export async function fetchGalleryMedia(): Promise<GalleryEvent[]> {
   });
 }
 
+
 // fetching home ad section items
 export async function getFeaturedAds(): Promise<AdItem[]> {
   const res = await client.getEntries({
@@ -464,4 +465,37 @@ export async function getFeaturedAds(): Promise<AdItem[]> {
     }
   })
 }
+
+
+
+
+export async function fetchPopUpAds(): Promise<AdCreative[]> {
+  try {
+    const res = await client.getEntries({
+      content_type: 'ads',
+      //select: 'fields.title,fields.bodyText,fields.ctaBtnText,fields.website,fields.coverImage',
+    });
+
+    const ads: AdCreative[] = res.items.map((item: any) => {
+      const { title, bodyText, ctaBtnText, website, coverImage } = item.fields;
+      const file = coverImage?.fields?.file;
+      const img = file?.url?.startsWith('https') ? file.url : `https:${file?.url}`;
+
+      return {
+        id: item.sys.id,
+        title: title || '',
+        body: bodyText || '',
+        cta: ctaBtnText || '',
+        href: website || '#',
+        img: img || '',
+      };
+    });
+
+    return ads;
+  } catch (error) {
+    console.error('[fetchPopUpAds] Failed to fetch ads:', error);
+    return [];
+  }
+}
+
 

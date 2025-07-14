@@ -5,112 +5,65 @@ import { usePathname } from "next/navigation"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
 import { X } from "lucide-react"
 import { Button } from "@/components/ui/button"
-
-/**
- * A single ad slot description.
- */
-interface AdCreative {
-  id: string
-  title: string
-  body: string
-  cta: string
-  href: string
-  img: string
-}
-
-const ADS: AdCreative[] = [
-  {
-    id: "cam-rental",
-    title: "Need Pro Cameras?",
-    body: "Rent RED & ARRI packages at 25 % off – this month only.",
-    cta: "Browse Gear",
-    href: "https://example.com/camera-rental",
-    img: "/placeholder.svg?height=400&width=700",
-  },
-  {
-    id: "festival-sub",
-    title: "Submit Your Film",
-    body: "Early-bird entry to Bright Lights Festival closes soon.",
-    cta: "Submit Now",
-    href: "https://example.com/festival",
-    img: "/placeholder.svg?height=400&width=700",
-  },
-  {
-    id: "post-house",
-    title: "Post-Production Services",
-    body: "Colour, VFX & sound finishing from Academy-award winning team.",
-    cta: "Get a Quote",
-    href: "https://example.com/post",
-    img: "/placeholder.svg?height=400&width=700",
-  },
-  {
-    id: "insurance",
-    title: "On-Set Insurance",
-    body: "Instant cover for crew & gear – starting at $49/day.",
-    cta: "Insure Today",
-    href: "https://example.com/insurance",
-    img: "/placeholder.svg?height=400&width=700",
-  },
-  {
-    id: "casting",
-    title: "Find Your Cast",
-    body: "10k+ actors ready for your next project. Post a breakdown free.",
-    cta: "Post Casting",
-    href: "https://example.com/casting",
-    img: "/placeholder.svg?height=400&width=700",
-  },
-]
-
-// Utility: pick a random ad
-function getRandomAd() {
-  return ADS[Math.floor(Math.random() * ADS.length)]
-}
+import type { AdCreative } from "@/lib/types"
+import { fetchPopUpAds } from "@/lib/contentful"
 
 export default function AdPopupManager() {
   const pathname = usePathname()
+  const [ads, setAds] = useState<AdCreative[]>([])
+  const [currentAd, setCurrentAd] = useState<AdCreative | null>(null)
   const [open, setOpen] = useState(false)
-  const [currentAd, setCurrentAd] = useState<AdCreative>(getRandomAd)
   const timerRef = useRef<NodeJS.Timeout | null>(null)
-  const INTERVAL = 25_00000000000 // 25 s  //should be changed after developement
+  const INTERVAL = 25000 // 25s
+
+  // Utility: pick a random ad
+  function getRandomAd(adList: AdCreative[]) {
+    return adList[Math.floor(Math.random() * adList.length)]
+  }
 
   // Show ad (and choose a new creative)
   const triggerAd = () => {
-    setCurrentAd(getRandomAd())
+    if (ads.length === 0) return
+    setCurrentAd(getRandomAd(ads))
     setOpen(true)
   }
 
   // Close & clear any body scroll lock
   const handleClose = () => setOpen(false)
 
-  // Show once on initial mount
+  // Initial load: fetch ads and show first popup
   useEffect(() => {
-    const t = setTimeout(triggerAd, 1500)
+    async function loadAds() {
+      const fetchedAds = await fetchPopUpAds()
+      setAds(fetchedAds)
+      setCurrentAd(getRandomAd(fetchedAds))
+      setOpen(true)
+    }
+
+    const t = setTimeout(loadAds, 1500)
     return () => clearTimeout(t)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // On every route change, show after a brief delay
+  // On every route change, show ad
   useEffect(() => {
     const t = setTimeout(triggerAd, 800)
     return () => clearTimeout(t)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname])
 
-  // Interval while user stays on same page
+  // Recurring ad popup
   useEffect(() => {
     timerRef.current && clearInterval(timerRef.current)
     timerRef.current = setInterval(triggerAd, INTERVAL)
     return () => {
       timerRef.current && clearInterval(timerRef.current)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathname])
+  }, [pathname, ads])
 
-  return (
+  return currentAd ? (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent
         className="max-w-lg w-[90vw] p-0 border-none bg-zinc-900 text-white overflow-hidden"
-        style={{ marginTop: "clamp(4rem, 10vh, 6rem)" }} // always below navbar
+        style={{ marginTop: "clamp(4rem, 10vh, 6rem)" }}
       >
         {/* Close button */}
         <button
@@ -148,5 +101,5 @@ export default function AdPopupManager() {
         </div>
       </DialogContent>
     </Dialog>
-  )
+  ) : null
 }

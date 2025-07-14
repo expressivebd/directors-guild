@@ -267,3 +267,12 @@ export interface AdItem {
   link: string;
   isFeatred?: boolean;
 }
+
+export interface AdCreative {
+  id: string
+  title: string
+  body: string
+  cta: string
+  href: string
+  img: string
+}
