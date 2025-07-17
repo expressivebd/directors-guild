@@ -4,6 +4,17 @@
 
 import { Document } from "@contentful/rich-text-types"
 
+export interface Project {
+  id: string
+  title: string
+  description: string
+  image: string
+  year: string
+  category: string
+  tags: string[]
+}
+
+
 export interface Event {
   id: string
   title: string
@@ -32,20 +43,24 @@ export interface Event {
 export interface Member {
   id: string
   name: string
-  specialty: string
-  image?: string
-  bio: string
-  tags?: string[]
-  email?: string
-  phone?: string
-  location?: string
+  role: string
+  image: string
+  bio?: string
+  email: string
+  phone: string
+  location: string
   website?: string
-  socialLinks?: Record<string, string>
-  coverImage?: string
+  joinDate: string
+  category: "founding" | "executive" | "lifetime" | "full" | "associate" | "student" | "deceased"
+  isExecutive?: boolean
   awards?: Award[]
-  filmography?: FilmographyItem[]
-  showreelUrl?: string
-  showreelThumbnail?: string
+  projects?: Project[]
+  socialLinks?: {
+    twitter?: string
+    instagram?: string
+    linkedin?: string
+    website?: string
+  }
 }
 
 // Team Member type
@@ -94,6 +109,7 @@ export interface CarouselItem {
 }
 
 // User Profile type
+// User Profile type
 export interface UserProfile {
   id: string
   firstName: string
@@ -114,6 +130,7 @@ export interface UserProfile {
 
 // Award type
 export interface Award {
+  id: string,
   title: string
   organization: string
   year: string
@@ -275,4 +292,11 @@ export interface AdCreative {
   cta: string
   href: string
   img: string
+}
+
+
+export interface PaymentHistoryItem {
+  month: string
+  amount: number
+  status: "paid" | "unpaid"
 }

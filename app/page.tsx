@@ -10,7 +10,7 @@ import TributeSection from "@/components/home/tribute-section"
 import WideAdPanel from "@/components/ads/wide-ad-panel"
 import { fetchFeaturedNews, getEvents, getFeaturedAds} from "@/lib/contentful"
 import type { AdItem } from "@/lib/types"
-import { AdContext } from "@/context/ad-context"
+
 
 export default async function Home() {
   // Fetch data on the server

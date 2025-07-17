@@ -80,11 +80,11 @@ export default function MemberShowreel({ member }: MemberShowreelProps) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.7 }}
-      className="relative bg-zinc-900 rounded-lg overflow-hidden"
+      className="relative bg-zinc-900 rounded-lg overflow-hidden max-w-5xl mx-auto"
     >
       <video
         ref={videoRef}
-        className="w-full aspect-video object-cover"
+        className="w-full h-80 sm:h-96 md:h-[32rem] lg:h-[36rem] object-cover"
         poster={member.showreelThumbnail || "/placeholder.svg?height=720&width=1280"}
         onTimeUpdate={handleTimeUpdate}
         onEnded={() => setIsPlaying(false)}
