@@ -47,12 +47,14 @@ export interface Member {
   image: string
   bio?: string
   email: string
+  specialty?: string
   phone: string
   location: string
   website?: string
   joinDate: string
   category: "founding" | "executive" | "lifetime" | "full" | "associate" | "student" | "deceased"
   isExecutive?: boolean
+  tags?: string[]
   awards?: Award[]
   projects?: Project[]
   socialLinks?: {
@@ -61,6 +63,12 @@ export interface Member {
     linkedin?: string
     website?: string
   }
+}
+
+export interface PaymentHistoryItem {
+  month: string
+  feesAmount: number
+  paymentStatus: "paid" | "unpaid"
 }
 
 // Team Member type
