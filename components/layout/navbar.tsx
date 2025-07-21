@@ -1,11 +1,11 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import Link from "next/link"
-import Image from "next/image"
-import { usePathname } from "next/navigation"
-import { motion, AnimatePresence } from "framer-motion"
-import { Button } from "@/components/ui/button"
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { usePathname, useRouter } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,31 +13,32 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { useAuth } from "@/lib/auth-provider"
-import { Menu, X, User, LogOut, Settings, Film, Calendar } from "lucide-react"
-import { useMobile } from "@/hooks/use-mobile"
+} from "@/components/ui/dropdown-menu";
+import { Menu, X, User, LogOut, Settings, Film, Calendar } from "lucide-react";
+import { useUser, useClerk } from "@clerk/nextjs";
+import { useMobile } from "@/hooks/use-mobile";
 
 export default function Navbar() {
-  const [isScrolled, setIsScrolled] = useState(false)
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const pathname = usePathname()
-  const { user, signOut } = useAuth()
-  const isMobile = useMobile()
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const pathname = usePathname();
+  const router = useRouter();
+  const { user } = useUser();
+  const { signOut } = useClerk();
+  const isMobile = useMobile();
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10)
-    }
+      setIsScrolled(window.scrollY > 10);
+    };
 
-    window.addEventListener("scroll", handleScroll)
-    return () => window.removeEventListener("scroll", handleScroll)
-  }, [])
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
-  // Close mobile menu when route changes
   useEffect(() => {
-    setIsMenuOpen(false)
-  }, [pathname])
+    setIsMenuOpen(false);
+  }, [pathname]);
 
   const navLinks = [
     { href: "/", label: "Home" },
@@ -49,7 +50,7 @@ export default function Navbar() {
     { href: "/partners", label: "Partners" },
     { href: "/contact", label: "Contact" },
     { href: "/directory", label: "Directory" },
-  ]
+  ];
 
   return (
     <header
@@ -91,10 +92,10 @@ export default function Navbar() {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-                    {user.image ? (
+                    {user.imageUrl ? (
                       <Image
-                        src={user.image || "/placeholder.svg"}
-                        alt={user.name || "User"}
+                        src={user.imageUrl}
+                        alt={user.fullName || "User"}
                         fill
                         className="rounded-full object-cover"
                       />
@@ -106,17 +107,14 @@ export default function Navbar() {
                 <DropdownMenuContent align="end" className="w-56 bg-zinc-900 border-zinc-800">
                   <DropdownMenuLabel>
                     <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium">{user.name}</p>
-                      <p className="text-xs text-gray-400">{user.email}</p>
+                      <p className="text-sm font-medium">{user.fullName}</p>
+                      <p className="text-xs text-gray-400">
+                        {user.primaryEmailAddress?.emailAddress}
+                      </p>
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <Link href="/dashboard" className="cursor-pointer">
-                      <Settings className="mr-2 h-4 w-4" />
-                      <span>Dashboard</span>
-                    </Link>
-                  </DropdownMenuItem>
+                  
                   <DropdownMenuItem asChild>
                     <Link href="/dashboard/profile" className="cursor-pointer">
                       <User className="mr-2 h-4 w-4" />
@@ -129,14 +127,9 @@ export default function Navbar() {
                       <span>Projects</span>
                     </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href="/dashboard/schedule" className="cursor-pointer">
-                      <Calendar className="mr-2 h-4 w-4" />
-                      <span>Schedule</span>
-                    </Link>
-                  </DropdownMenuItem>
+                  
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={signOut} className="cursor-pointer">
+                  <DropdownMenuItem onClick={() => signOut()} className="cursor-pointer">
                     <LogOut className="mr-2 h-4 w-4" />
                     <span>Log out</span>
                   </DropdownMenuItem>
@@ -155,7 +148,12 @@ export default function Navbar() {
           </div>
 
           {/* Mobile Menu Button */}
-          <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="md:hidden"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          >
             {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </Button>
         </div>
@@ -188,17 +186,14 @@ export default function Navbar() {
                 {user ? (
                   <>
                     <div className="h-px bg-zinc-800 my-2"></div>
-                    <Link href="/dashboard" className="text-base font-medium transition-colors hover:text-green-400">
+                    <Link href="/dashboard" className="text-base font-medium hover:text-green-400">
                       Dashboard
                     </Link>
-                    <Link
-                      href="/dashboard/profile"
-                      className="text-base font-medium transition-colors hover:text-green-400"
-                    >
+                    <Link href="/dashboard/profile" className="text-base font-medium hover:text-green-400">
                       Profile
                     </Link>
                     <button
-                      onClick={signOut}
+                      onClick={() => signOut()}
                       className="text-base font-medium text-left text-red-400 hover:text-red-300"
                     >
                       Log out
@@ -207,10 +202,10 @@ export default function Navbar() {
                 ) : (
                   <>
                     <div className="h-px bg-zinc-800 my-2"></div>
-                    <Link href="/auth/signin" className="text-base font-medium transition-colors hover:text-green-400">
+                    <Link href="/auth/signin" className="text-base font-medium hover:text-green-400">
                       Sign In
                     </Link>
-                    <Link href="/auth/signup" className="text-base font-medium transition-colors hover:text-green-400">
+                    <Link href="/auth/signup" className="text-base font-medium hover:text-green-400">
                       Sign Up
                     </Link>
                   </>
@@ -221,5 +216,5 @@ export default function Navbar() {
         )}
       </AnimatePresence>
     </header>
-  )
+  );
 }

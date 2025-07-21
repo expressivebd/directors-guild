@@ -9,6 +9,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@clerk/nextjs": "^6.25.4",
     "@contentful/rich-text-plain-text-renderer": "^17.0.1",
     "@contentful/rich-text-react-renderer": "^16.0.2",
     "@emotion/is-prop-valid": "latest",
