@@ -1,29 +1,31 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useAdminAuth } from "@/lib/admin-auth"
-import { AdminSidebar } from "./admin-sidebar"
-import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
-import { Loader2, Menu } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import type React from "react";
+import { useSession } from "next-auth/react";
+import { AdminSidebar } from "./admin-sidebar";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { Loader2, Menu } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface AdminLayoutProps {
-  children: React.ReactNode
+  children: React.ReactNode;
 }
 
 export function AdminLayout({ children }: AdminLayoutProps) {
-  const { admin, isLoading } = useAdminAuth()
-  const router = useRouter()
-  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
-    if (!isLoading && !admin) {
-      router.push("/admin")
-    }
-  }, [admin, isLoading, router])
+    if (status === "loading") return;
 
-  if (isLoading) {
+    if (!session || !session.user?.adminRoles?.includes("superAdmin")) {
+      router.push("/admin");
+    }
+  }, [session, status, router]);
+
+  if (status === "loading") {
     return (
       <div className="flex h-screen items-center justify-center bg-slate-900">
         <div className="text-center">
@@ -31,11 +33,11 @@ export function AdminLayout({ children }: AdminLayoutProps) {
           <p className="text-slate-400">Loading admin panel...</p>
         </div>
       </div>
-    )
+    );
   }
 
-  if (!admin) {
-    return null
+  if (!session || !session.user?.adminRoles?.includes("superAdmin")) {
+    return null;
   }
 
   return (
@@ -65,7 +67,10 @@ export function AdminLayout({ children }: AdminLayoutProps) {
 
       {/* Mobile Overlay */}
       {sidebarOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-30 md:hidden" onClick={() => setSidebarOpen(false)} />
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-30 md:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
       )}
 
       {/* Main Content */}
@@ -75,5 +80,5 @@ export function AdminLayout({ children }: AdminLayoutProps) {
         </div>
       </main>
     </div>
-  )
+  );
 }

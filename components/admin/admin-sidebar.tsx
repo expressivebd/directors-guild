@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import { useAdminAuth } from "@/lib/admin-auth"
-import { Button } from "@/components/ui/button"
-import { ScrollArea } from "@/components/ui/scroll-area"
+import { useSession, signOut } from "next-auth/react";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Users,
   UserPlus,
@@ -16,10 +16,10 @@ import {
   Shield,
   Home,
   X,
-} from "lucide-react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { cn } from "@/lib/utils"
+} from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
 
 const navigationItems = [
   {
@@ -70,17 +70,19 @@ const navigationItems = [
     icon: Newspaper,
     permission: "news.read",
   },
-]
+];
 
 interface AdminSidebarProps {
-  onClose?: () => void
+  onClose?: () => void;
 }
 
 export function AdminSidebar({ onClose }: AdminSidebarProps) {
-  const { admin, logout, hasPermission } = useAdminAuth()
-  const pathname = usePathname()
+  const { data: session } = useSession();
+  const pathname = usePathname();
 
-  if (!admin) return null
+  if (!session || !session.user?.adminRoles?.includes("superAdmin")) {
+    return null;
+  }
 
   return (
     <div className="flex h-full w-64 flex-col bg-slate-900 border-r border-slate-700">
@@ -91,7 +93,12 @@ export function AdminSidebar({ onClose }: AdminSidebarProps) {
           <span className="text-sm font-semibold text-white">Admin Panel</span>
         </div>
         {onClose && (
-          <Button variant="ghost" size="sm" onClick={onClose} className="text-white hover:bg-white/10 md:hidden">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onClose}
+            className="text-white hover:bg-white/10 md:hidden"
+          >
             <X className="h-4 w-4" />
           </Button>
         )}
@@ -101,8 +108,8 @@ export function AdminSidebar({ onClose }: AdminSidebarProps) {
         <ScrollArea className="h-full">
           <nav className="space-y-1 p-3">
             {navigationItems.map((item) => {
-              const canAccess = !item.permission || hasPermission(item.permission) || hasPermission("*")
-              const isActive = pathname === item.href
+              const canAccess = true; // SuperAdmin has access to all sections
+              const isActive = pathname === item.href;
 
               return (
                 <Link
@@ -113,29 +120,31 @@ export function AdminSidebar({ onClose }: AdminSidebarProps) {
                     isActive
                       ? "bg-gradient-to-r from-purple-500 to-violet-500 text-white shadow-lg shadow-purple-500/25"
                       : canAccess
-                        ? "text-slate-300 hover:bg-slate-800 hover:text-white hover:shadow-md"
-                        : "text-slate-600 cursor-not-allowed",
+                      ? "text-slate-300 hover:bg-slate-800 hover:text-white hover:shadow-md"
+                      : "text-slate-600 cursor-not-allowed"
                   )}
                   onClick={(e) => {
                     if (!canAccess) {
-                      e.preventDefault()
+                      e.preventDefault();
                     } else if (onClose) {
-                      onClose()
+                      onClose();
                     }
                   }}
                 >
                   <item.icon className="h-4 w-4" />
                   <span className="truncate">{item.title}</span>
-                  {!canAccess && <span className="ml-auto text-xs text-red-400">🔒</span>}
+                  {!canAccess && (
+                    <span className="ml-auto text-xs text-red-400">🔒</span>
+                  )}
                 </Link>
-              )
+              );
             })}
           </nav>
         </ScrollArea>
       </div>
 
       <div className="border-t border-slate-700 p-3 space-y-2 bg-slate-800/50">
-        {admin.role === "super_admin" && (
+        {session.user?.adminRoles?.includes("superAdmin") && (
           <Link href="/admin/dashboard/admins" onClick={onClose}>
             <Button
               variant="outline"
@@ -152,8 +161,8 @@ export function AdminSidebar({ onClose }: AdminSidebarProps) {
           size="sm"
           className="w-full bg-red-600 hover:bg-red-700 text-white shadow-lg hover:shadow-red-500/25 transition-all duration-200"
           onClick={() => {
-            logout()
-            if (onClose) onClose()
+            signOut({ callbackUrl: "/" });
+            if (onClose) onClose();
           }}
         >
           <LogOut className="mr-2 h-3 w-3" />
@@ -161,5 +170,5 @@ export function AdminSidebar({ onClose }: AdminSidebarProps) {
         </Button>
       </div>
     </div>
-  )
+  );
 }

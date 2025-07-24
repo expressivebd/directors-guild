@@ -1,21 +1,11 @@
-import type React from "react"
-import { AdminAuthProvider } from "@/lib/admin-auth"
-import "./globals.css"
+import type React from "react";
+import AuthProvider from "@/lib/auth-provider";
+import "./globals.css";
 
 export default function AdminRootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
-  return (
-
-    <html lang="en" suppressHydrationWarning>
-          <body>
-
-
-        <AdminAuthProvider>{children}</AdminAuthProvider>
-          </body>
-
-    </html>
-    )
+  return <AuthProvider>{children}</AuthProvider>;
 }

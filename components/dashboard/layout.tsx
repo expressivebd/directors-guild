@@ -1,27 +1,38 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState, useEffect } from "react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { useAuth } from "@/lib/auth-provider"
-import { LayoutDashboard, User, Film, Calendar, Bell, Settings, LogOut, Menu, X, ChevronRight } from "lucide-react"
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { useSession, signOut } from "next-auth/react";
+import {
+  LayoutDashboard,
+  User,
+  Film,
+  Calendar,
+  Bell,
+  Settings,
+  LogOut,
+  Menu,
+  X,
+  ChevronRight,
+} from "lucide-react";
 
 interface DashboardLayoutProps {
-  children: React.ReactNode
+  children: React.ReactNode;
 }
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
-  const pathname = usePathname()
-  const { signOut } = useAuth()
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const pathname = usePathname();
+  const { data: session } = useSession();
 
   // Close sidebar on route change on mobile
   useEffect(() => {
-    setIsSidebarOpen(false)
-  }, [pathname])
+    setIsSidebarOpen(false);
+  }, [pathname]);
 
   const navItems = [
     {
@@ -54,7 +65,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       href: "/dashboard/settings",
       icon: <Settings className="h-5 w-5" />,
     },
-  ]
+  ];
 
   return (
     <div className="min-h-screen bg-black pt-16">
@@ -66,7 +77,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           className="rounded-full shadow-lg"
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
         >
-          {isSidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          {isSidebarOpen ? (
+            <X className="h-5 w-5" />
+          ) : (
+            <Menu className="h-5 w-5" />
+          )}
         </Button>
       </div>
 
@@ -91,7 +106,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 >
                   {item.icon}
                   <span className="ml-3">{item.name}</span>
-                  {pathname === item.href && <ChevronRight className="ml-auto h-4 w-4" />}
+                  {pathname === item.href && (
+                    <ChevronRight className="ml-auto h-4 w-4" />
+                  )}
                 </Link>
               ))}
             </nav>
@@ -101,7 +118,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             <Button
               variant="ghost"
               className="w-full justify-start text-gray-300 hover:bg-zinc-800 hover:text-white"
-              onClick={signOut}
+              onClick={() => signOut({ callbackUrl: "/" })}
             >
               <LogOut className="mr-3 h-5 w-5" />
               Log out
@@ -115,5 +132,5 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         <main className="min-h-[calc(100vh-4rem)]">{children}</main>
       </div>
     </div>
-  )
+  );
 }

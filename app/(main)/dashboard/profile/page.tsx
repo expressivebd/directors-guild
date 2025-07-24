@@ -13,7 +13,6 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useToast } from "@/components/ui/use-toast"
-import { fetchUserProfile, updateUserProfile } from "@/lib/api"
 import type { UserProfile } from "@/lib/types"
 import DashboardLayout from "@/components/dashboard/layout"
 import { CameraIcon, SaveIcon, PlusIcon } from "lucide-react"
@@ -23,38 +22,129 @@ export default function ProfilePage() {
   const [formData, setFormData] = useState<Partial<UserProfile>>({})
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  })
+  const [changingPassword, setChangingPassword] = useState(false)
   const { toast } = useToast()
 
   useEffect(() => {
     const loadData = async () => {
       try {
-        const userProfile = await fetchUserProfile()
+        const response = await fetch('/api/profile')
+        if (!response.ok) {
+          throw new Error('Failed to fetch profile')
+        }
+        const userProfile = await response.json()
         setProfile(userProfile)
         setFormData(userProfile)
         setLoading(false)
       } catch (error) {
         console.error("Error loading profile data:", error)
+        toast({
+          title: "Error loading profile",
+          description: "There was an error loading your profile data.",
+          variant: "destructive",
+        })
         setLoading(false)
       }
     }
 
     loadData()
-  }, [])
+  }, [toast])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
-  const handleSocialChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
+  const handlePreferenceChange = (field: string, value: boolean) => {
     setFormData((prev) => ({
       ...prev,
-      socialLinks: {
-        ...prev.socialLinks,
-        [name]: value,
+      preferences: {
+        ...prev.preferences,
+        [field]: value,
       },
     }))
+  }
+
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target
+    setPasswordData(prev => ({
+      ...prev,
+      [name]: value
+    }))
+  }
+
+  const handlePasswordSubmit = async () => {
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      toast({
+        title: "Password mismatch",
+        description: "New password and confirm password do not match.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    if (passwordData.newPassword.length < 6) {
+      toast({
+        title: "Password too short",
+        description: "Password must be at least 6 characters long.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    if (!passwordData.currentPassword) {
+      toast({
+        title: "Current password required",
+        description: "Please enter your current password.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    setChangingPassword(true)
+
+    try {
+      const response = await fetch('/api/change-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          currentPassword: passwordData.currentPassword,
+          newPassword: passwordData.newPassword,
+        }),
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to change password')
+      }
+
+      toast({
+        title: "Password updated",
+        description: "Your password has been changed successfully.",
+      })
+
+      // Reset password form
+      setPasswordData({
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: ''
+      })
+    } catch (error: any) {
+      toast({
+        title: "Password change failed",
+        description: error.message || "There was an error changing your password.",
+        variant: "destructive",
+      })
+    } finally {
+      setChangingPassword(false)
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -62,7 +152,17 @@ export default function ProfilePage() {
     setSaving(true)
 
     try {
-      await updateUserProfile(formData)
+      const response = await fetch('/api/profile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to update profile')
+      }
 
       toast({
         title: "Profile updated",
@@ -72,6 +172,7 @@ export default function ProfilePage() {
       // Update the profile state with the new data
       setProfile((prev) => ({ ...prev, ...formData }) as UserProfile)
     } catch (error) {
+      console.error("Error updating profile:", error)
       toast({
         title: "Update failed",
         description: "There was an error updating your profile. Please try again.",
@@ -104,8 +205,8 @@ export default function ProfilePage() {
             <TabsTrigger value="account">Account Settings</TabsTrigger>
           </TabsList>
 
-          <form onSubmit={handleSubmit}>
-            <TabsContent value="personal" className="space-y-6">
+          <TabsContent value="personal" className="space-y-6">
+            <form onSubmit={handleSubmit}>
               <Card className="bg-zinc-900">
                 <CardHeader>
                   <CardTitle>Personal Information</CardTitle>
@@ -130,28 +231,15 @@ export default function ProfilePage() {
                     </div>
 
                     <div className="md:w-2/3 space-y-4">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="firstName">First Name</Label>
-                          <Input
-                            id="firstName"
-                            name="firstName"
-                            value={formData.firstName || ""}
-                            onChange={handleChange}
-                            className="bg-zinc-800"
-                          />
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label htmlFor="lastName">Last Name</Label>
-                          <Input
-                            id="lastName"
-                            name="lastName"
-                            value={formData.lastName || ""}
-                            onChange={handleChange}
-                            className="bg-zinc-800"
-                          />
-                        </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="name">Full Name</Label>
+                        <Input
+                          id="name"
+                          name="name"
+                          value={formData.name || ""}
+                          onChange={handleChange}
+                          className="bg-zinc-800"
+                        />
                       </div>
 
                       <div className="space-y-2">
@@ -163,6 +251,7 @@ export default function ProfilePage() {
                           value={formData.email || ""}
                           onChange={handleChange}
                           className="bg-zinc-800"
+                          disabled
                         />
                       </div>
 
@@ -178,14 +267,14 @@ export default function ProfilePage() {
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="location">Location</Label>
+                        <Label htmlFor="address">Address</Label>
                         <Input
-                          id="location"
-                          name="location"
-                          value={formData.location || ""}
+                          id="address"
+                          name="address"
+                          value={formData.address || ""}
                           onChange={handleChange}
                           className="bg-zinc-800"
-                          placeholder="City, Country"
+                          placeholder="Your full address"
                         />
                       </div>
                     </div>
@@ -195,86 +284,90 @@ export default function ProfilePage() {
 
               <Card className="bg-zinc-900">
                 <CardHeader>
-                  <CardTitle>Social Media</CardTitle>
+                  <CardTitle>Social Media & Website</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="twitter">Twitter</Label>
-                      <Input
-                        id="twitter"
-                        name="twitter"
-                        value={formData.socialLinks?.twitter || ""}
-                        onChange={handleSocialChange}
-                        className="bg-zinc-800"
-                        placeholder="https://twitter.com/username"
-                      />
-                    </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="website">Personal Website</Label>
+                    <Input
+                      id="website"
+                      name="website"
+                      value={formData.website || ""}
+                      onChange={handleChange}
+                      className="bg-zinc-800"
+                      placeholder="https://yourwebsite.com"
+                    />
+                  </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="instagram">Instagram</Label>
-                      <Input
-                        id="instagram"
-                        name="instagram"
-                        value={formData.socialLinks?.instagram || ""}
-                        onChange={handleSocialChange}
-                        className="bg-zinc-800"
-                        placeholder="https://instagram.com/username"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="linkedin">LinkedIn</Label>
-                      <Input
-                        id="linkedin"
-                        name="linkedin"
-                        value={formData.socialLinks?.linkedin || ""}
-                        onChange={handleSocialChange}
-                        className="bg-zinc-800"
-                        placeholder="https://linkedin.com/in/username"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="website">Personal Website</Label>
-                      <Input
-                        id="website"
-                        name="website"
-                        value={formData.website || ""}
-                        onChange={handleChange}
-                        className="bg-zinc-800"
-                        placeholder="https://yourwebsite.com"
-                      />
-                    </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="socialMedia">Social Media Links</Label>
+                    <Textarea
+                      id="socialMedia"
+                      name="socialMedia"
+                      value={formData.socialMedia || ""}
+                      onChange={handleChange}
+                      className="bg-zinc-800 min-h-[100px]"
+                      placeholder="Add your social media links (Instagram, Twitter, LinkedIn, etc.) one per line or separated by commas"
+                    />
                   </div>
                 </CardContent>
               </Card>
-            </TabsContent>
 
-            <TabsContent value="professional" className="space-y-6">
+              <div className="flex justify-end mt-6">
+                <Button type="submit" disabled={saving}>
+                  {saving ? (
+                    <>
+                      <span className="animate-spin mr-2">⟳</span>
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <SaveIcon className="mr-2 h-4 w-4" />
+                      Save Changes
+                    </>
+                  )}
+                </Button>
+              </div>
+            </form>
+          </TabsContent>
+
+          <TabsContent value="professional" className="space-y-6">
+            <form onSubmit={handleSubmit}>
               <Card className="bg-zinc-900">
                 <CardHeader>
                   <CardTitle>Professional Information</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="specialty">Specialty</Label>
-                    <Input
-                      id="specialty"
-                      name="specialty"
-                      value={formData.specialty || ""}
+                    <Label htmlFor="experience">Experience</Label>
+                    <Textarea
+                      id="experience"
+                      name="experience"
+                      value={formData.experience || ""}
                       onChange={handleChange}
-                      className="bg-zinc-800"
-                      placeholder="e.g. Film, Television, Documentary"
+                      className="bg-zinc-800 min-h-[100px]"
+                      placeholder="Describe your professional experience..."
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="bio">Biography</Label>
+                    <Label htmlFor="education">Education</Label>
                     <Textarea
-                      id="bio"
-                      name="bio"
-                      value={formData.bio || ""}
+                      id="education"
+                      name="education"
+                      value={formData.education || ""}
+                      onChange={handleChange}
+                      className="bg-zinc-800 min-h-[100px]"
+                      placeholder="Your educational background..."
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="biography">Biography</Label>
+                    <Textarea
+                      id="biography"
+                      name="biography"
+                      value={formData.biography || ""}
                       onChange={handleChange}
                       className="bg-zinc-800 min-h-[200px]"
                       placeholder="Tell us about yourself and your work..."
@@ -288,11 +381,26 @@ export default function ProfilePage() {
                       name="skills"
                       value={formData.skills?.join(", ") || ""}
                       onChange={(e) => {
-                        const skills = e.target.value.split(",").map((skill) => skill.trim())
+                        const skills = e.target.value.split(",").map((skill) => skill.trim()).filter(Boolean)
                         setFormData((prev) => ({ ...prev, skills }))
                       }}
                       className="bg-zinc-800"
                       placeholder="e.g. Cinematography, Screenwriting, Editing"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="awards">Awards (comma separated)</Label>
+                    <Input
+                      id="awards"
+                      name="awards"
+                      value={formData.awards?.join(", ") || ""}
+                      onChange={(e) => {
+                        const awards = e.target.value.split(",").map((award) => award.trim()).filter(Boolean)
+                        setFormData((prev) => ({ ...prev, awards }))
+                      }}
+                      className="bg-zinc-800"
+                      placeholder="e.g. Best Director Award 2023, Film Festival Winner"
                     />
                   </div>
                 </CardContent>
@@ -311,32 +419,89 @@ export default function ProfilePage() {
                   </Button>
                 </CardContent>
               </Card>
-            </TabsContent>
 
-            <TabsContent value="account" className="space-y-6">
+              <div className="flex justify-end mt-6">
+                <Button type="submit" disabled={saving}>
+                  {saving ? (
+                    <>
+                      <span className="animate-spin mr-2">⟳</span>
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <SaveIcon className="mr-2 h-4 w-4" />
+                      Save Changes
+                    </>
+                  )}
+                </Button>
+              </div>
+            </form>
+          </TabsContent>
+
+          <TabsContent value="account" className="space-y-6">
               <Card className="bg-zinc-900">
                 <CardHeader>
-                  <CardTitle>Account Settings</CardTitle>
+                  <CardTitle>Change Password</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="currentPassword">Current Password</Label>
-                    <Input id="currentPassword" type="password" className="bg-zinc-800" />
-                  </div>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="currentPassword">Current Password</Label>
+                      <Input 
+                        id="currentPassword" 
+                        name="currentPassword"
+                        type="password" 
+                        value={passwordData.currentPassword}
+                        onChange={handlePasswordChange}
+                        className="bg-zinc-800" 
+                        autoComplete="current-password"
+                      />
+                    </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="newPassword">New Password</Label>
-                    <Input id="newPassword" type="password" className="bg-zinc-800" />
-                  </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="newPassword">New Password</Label>
+                      <Input 
+                        id="newPassword" 
+                        name="newPassword"
+                        type="password" 
+                        value={passwordData.newPassword}
+                        onChange={handlePasswordChange}
+                        className="bg-zinc-800" 
+                        minLength={6}
+                        autoComplete="new-password"
+                      />
+                    </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="confirmPassword">Confirm New Password</Label>
-                    <Input id="confirmPassword" type="password" className="bg-zinc-800" />
-                  </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="confirmPassword">Confirm New Password</Label>
+                      <Input 
+                        id="confirmPassword" 
+                        name="confirmPassword"
+                        type="password" 
+                        value={passwordData.confirmPassword}
+                        onChange={handlePasswordChange}
+                        className="bg-zinc-800" 
+                        autoComplete="new-password"
+                      />
+                    </div>
 
-                  <Button variant="outline" className="w-full">
-                    Change Password
-                  </Button>
+                    <Button 
+                      type="button"
+                      variant="outline" 
+                      className="w-full"
+                      onClick={handlePasswordSubmit}
+                      disabled={changingPassword || !passwordData.currentPassword || !passwordData.newPassword || !passwordData.confirmPassword}
+                    >
+                      {changingPassword ? (
+                        <>
+                          <span className="animate-spin mr-2">⟳</span>
+                          Changing Password...
+                        </>
+                      ) : (
+                        "Change Password"
+                      )}
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
 
@@ -350,7 +515,10 @@ export default function ProfilePage() {
                       <h4 className="font-medium">Email Notifications</h4>
                       <p className="text-sm text-gray-400">Receive email updates about events and news</p>
                     </div>
-                    <Switch checked={true} />
+                    <Switch 
+                      checked={formData.preferences?.emailNotifications ?? true}
+                      onCheckedChange={(checked) => handlePreferenceChange('emailNotifications', checked)}
+                    />
                   </div>
 
                   <div className="flex items-center justify-between">
@@ -358,7 +526,10 @@ export default function ProfilePage() {
                       <h4 className="font-medium">Schedule Reminders</h4>
                       <p className="text-sm text-gray-400">Get reminders about your upcoming schedule</p>
                     </div>
-                    <Switch checked={true} />
+                    <Switch 
+                      checked={formData.preferences?.scheduleReminders ?? true}
+                      onCheckedChange={(checked) => handlePreferenceChange('scheduleReminders', checked)}
+                    />
                   </div>
 
                   <div className="flex items-center justify-between">
@@ -366,28 +537,14 @@ export default function ProfilePage() {
                       <h4 className="font-medium">Member Updates</h4>
                       <p className="text-sm text-gray-400">Receive updates about other members</p>
                     </div>
-                    <Switch checked={false} />
+                    <Switch 
+                      checked={formData.preferences?.memberUpdates ?? false}
+                      onCheckedChange={(checked) => handlePreferenceChange('memberUpdates', checked)}
+                    />
                   </div>
                 </CardContent>
               </Card>
             </TabsContent>
-
-            <div className="flex justify-end mt-6">
-              <Button type="submit" disabled={saving}>
-                {saving ? (
-                  <>
-                    <span className="animate-spin mr-2">⟳</span>
-                    Saving...
-                  </>
-                ) : (
-                  <>
-                    <SaveIcon className="mr-2 h-4 w-4" />
-                    Save Changes
-                  </>
-                )}
-              </Button>
-            </div>
-          </form>
         </Tabs>
       </div>
     </DashboardLayout>

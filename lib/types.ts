@@ -2,82 +2,112 @@
 
 // Event type
 
-import { Document } from "@contentful/rich-text-types"
+import { Document } from "@contentful/rich-text-types";
+import { DefaultSession } from "next-auth";
+import { JWT } from "next-auth/jwt";
 
-export interface Project {
-  id: string
-  title: string
-  description: string
-  image: string
-  year: string
-  category: string
-  tags: string[]
-}
+// Extend NextAuth types
+declare module "next-auth" {
+  interface User {
+    memberType?: string;
+    adminRoles?: string[];
+  }
 
-
-export interface Event {
-  id: string
-  title: string
-  description?: string
-  image?: string
-  date: string
-  time: string
-  location: string
-  type: string
-  tags: string[]
-  attendees?: number
-  actionLink?: string
-  organizer?: string
-  venue?: string
-  venueAddress?: string
-  ticketPrice?: string
-  dresscode?: string
-  agenda?: string
-  speakers?: string[]
-  requirements?: string
-  contact?: string
-}
-
-
-// Member type
-export interface Member {
-  id: string
-  name: string
-  role: string
-  image: string
-  bio?: string
-  email: string
-  specialty?: string
-  phone: string
-  location: string
-  website?: string
-  joinDate: string
-  category: "founding" | "executive" | "lifetime" | "full" | "associate" | "student" | "deceased"
-  isExecutive?: boolean
-  tags?: string[]
-  awards?: Award[]
-  projects?: Project[]
-  socialLinks?: {
-    twitter?: string
-    instagram?: string
-    linkedin?: string
-    website?: string
+  interface Session {
+    user: {
+      id: string;
+      memberType?: string;
+      adminRoles?: string[];
+    } & DefaultSession["user"];
   }
 }
 
+declare module "next-auth/jwt" {
+  interface JWT {
+    memberType?: string;
+    adminRoles?: string; // Store as comma-separated string in JWT
+  }
+}
+
+export interface Project {
+  id: string;
+  title: string;
+  description: string;
+  image: string;
+  year: string;
+  category: string;
+  tags: string[];
+}
+
+export interface Event {
+  id: string;
+  title: string;
+  description?: string;
+  image?: string;
+  date: string;
+  time: string;
+  location: string;
+  type: string;
+  tags: string[];
+  attendees?: number;
+  actionLink?: string;
+  organizer?: string;
+  venue?: string;
+  venueAddress?: string;
+  ticketPrice?: string;
+  dresscode?: string;
+  agenda?: string;
+  speakers?: string[];
+  requirements?: string;
+  contact?: string;
+}
+
+// Member type
+export interface Member {
+  id: string;
+  name: string;
+  role: string;
+  image: string;
+  bio?: string;
+  email: string;
+  specialty?: string;
+  phone: string;
+  location: string;
+  website?: string;
+  joinDate: string;
+  category:
+    | "founding"
+    | "executive"
+    | "lifetime"
+    | "full"
+    | "associate"
+    | "student"
+    | "deceased";
+  isExecutive?: boolean;
+  tags?: string[];
+  awards?: Award[];
+  projects?: Project[];
+  socialLinks?: {
+    twitter?: string;
+    instagram?: string;
+    linkedin?: string;
+    website?: string;
+  };
+}
+
 export interface PaymentHistoryItem {
-  month: string
-  feesAmount: number
-  paymentStatus: "paid" | "unpaid"
+  month: string;
+  feesAmount: number;
+  paymentStatus: "paid" | "unpaid";
 }
 
 // Team Member type
 export interface TeamMember {
-  id: string
-  name: string
-  position: string
-  image?: string
-  bio: string
+  id: string;
+  name: string;
+  position: string;
+  image?: string;
+  bio: string;
 }
 
 // News Article type
@@ -102,103 +132,102 @@ export type FeaturedNews = {
   isFeatured?: boolean;
 };
 
-
-
-
-
 //Carousel Item type
 export interface CarouselItem {
-  id: string
-  title: string
-  description: string
-  image: string
-  link: string
-  isFeatured?: boolean
+  id: string;
+  title: string;
+  description: string;
+  image: string;
+  link: string;
+  isFeatured?: boolean;
 }
 
 // User Profile type
 // User Profile type
 export interface UserProfile {
-  id: string
-  firstName: string
-  lastName: string
-  email: string
-  phone?: string
-  location?: string
-  image?: string
-  bio?: string
-  specialty?: string
-  memberSince: string
-  website?: string
-  socialLinks?: Record<string, string>
-  skills?: string[]
-  awards?: Award[]
-  filmography?: FilmographyItem[]
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  address?: string;
+  image?: string;
+  biography?: string;
+  website?: string;
+  socialMedia?: string;
+  skills?: string[];
+  awards?: string[];
+  experience?: string;
+  education?: string;
+  preferences?: {
+    emailNotifications?: boolean;
+    scheduleReminders?: boolean;
+    memberUpdates?: boolean;
+  };
+  memberType?: string;
 }
 
 // Award type
 export interface Award {
-  id: string,
-  title: string
-  organization: string
-  year: string
+  id: string;
+  title: string;
+  organization: string;
+  year: string;
 }
 
 // Filmography Item type
 export interface FilmographyItem {
-  title: string
-  year: string
-  role: string
+  title: string;
+  year: string;
+  role: string;
 }
 
 // Schedule Item type
 export interface ScheduleItem {
-  id: string
-  title: string
-  date: string
-  time: string
-  location: string
-  description: string
-  tags?: string[]
-  attendees?: number
+  id: string;
+  title: string;
+  date: string;
+  time: string;
+  location: string;
+  description: string;
+  tags?: string[];
+  attendees?: number;
 }
 
 // Notification type
 export interface Notification {
-  id: string
-  title: string
-  message: string
-  date: string
-  type: "info" | "success" | "warning" | "error"
-  read: boolean
-  actionLink?: string
-  actionText?: string
+  id: string;
+  title: string;
+  message: string;
+  date: string;
+  type: "info" | "success" | "warning" | "error";
+  read: boolean;
+  actionLink?: string;
+  actionText?: string;
 }
 
 // Branch type
 export interface Branch {
-  name: string
-  address?: string
-  phone?: string
-  email?: string
+  name: string;
+  address?: string;
+  phone?: string;
+  email?: string;
 }
 
-
 export interface Incentive {
-  id: string
-  brandName: string
-  brandLogo?: string
-  discountPercentage: number
-  discountDetails: string
-  shortDescription: string
-  description: string
-  category: string
-  redemptionInstructions: string
-  termsAndConditions?: string
-  expiryDate?: string
-  locations?: string
-  website?: string
-  branches?: Branch[]
+  id: string;
+  brandName: string;
+  brandLogo?: string;
+  discountPercentage: number;
+  discountDetails: string;
+  shortDescription: string;
+  description: string;
+  category: string;
+  redemptionInstructions: string;
+  termsAndConditions?: string;
+  expiryDate?: string;
+  locations?: string;
+  website?: string;
+  branches?: Branch[];
 }
 
 // Gallery Media type (supports both images and videos)
@@ -242,27 +271,26 @@ export type DirectoryEntry = {
 };
 
 export interface Partner {
-  id: string
-  brandName: string
-  brandLogo: string
-  isFeatured: boolean
-  shortDescription: string
-  description: string
-  website?: string
-  discountPercentage?: string
-  expiryDate?: string
-  locations?: string
-  redemptionInstructions?: string
-  discountDetails?: string
+  id: string;
+  brandName: string;
+  brandLogo: string;
+  isFeatured: boolean;
+  shortDescription: string;
+  description: string;
+  website?: string;
+  discountPercentage?: string;
+  expiryDate?: string;
+  locations?: string;
+  redemptionInstructions?: string;
+  discountDetails?: string;
   branches?: {
-    name: string
-    address?: string
-    phone?: string
-  }[]
-  category?: string
-  termsAndConditions?: string
+    name: string;
+    address?: string;
+    phone?: string;
+  }[];
+  category?: string;
+  termsAndConditions?: string;
 }
-
 
 export interface FeaturedWork {
   id: string;
@@ -276,15 +304,14 @@ export interface FeaturedWork {
 }
 
 export interface Legends {
-  id: string
-  name: string
-  genre: string
-  lifespan: string
-  image: string
-  bio: string
-  famousWorks: string[]
+  id: string;
+  name: string;
+  genre: string;
+  lifespan: string;
+  image: string;
+  bio: string;
+  famousWorks: string[];
 }
-
 
 export interface AdItem {
   id: string;
@@ -294,17 +321,16 @@ export interface AdItem {
 }
 
 export interface AdCreative {
-  id: string
-  title: string
-  body: string
-  cta: string
-  href: string
-  img: string
+  id: string;
+  title: string;
+  body: string;
+  cta: string;
+  href: string;
+  img: string;
 }
 
-
 export interface PaymentHistoryItem {
-  month: string
-  amount: number
-  status: "paid" | "unpaid"
+  month: string;
+  amount: number;
+  status: "paid" | "unpaid";
 }

@@ -15,7 +15,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Menu, X, User, LogOut, Settings, Film, Calendar } from "lucide-react";
-import { useUser, useClerk } from "@clerk/nextjs";
+import { useSession, signOut } from "next-auth/react";
 import { useMobile } from "@/hooks/use-mobile";
 
 export default function Navbar() {
@@ -23,8 +23,8 @@ export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
-  const { user } = useUser();
-  const { signOut } = useClerk();
+  const { data: session } = useSession();
+  const user = session?.user;
   const isMobile = useMobile();
 
   useEffect(() => {
@@ -55,7 +55,9 @@ export default function Navbar() {
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled || isMenuOpen ? "bg-black/80 backdrop-blur-md shadow-md" : "bg-transparent"
+        isScrolled || isMenuOpen
+          ? "bg-black/80 backdrop-blur-md shadow-md"
+          : "bg-transparent"
       }`}
     >
       <div className="container mx-auto px-4">
@@ -91,11 +93,14 @@ export default function Navbar() {
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-                    {user.imageUrl ? (
+                  <Button
+                    variant="ghost"
+                    className="relative h-10 w-10 rounded-full"
+                  >
+                    {user.image ? (
                       <Image
-                        src={user.imageUrl}
-                        alt={user.fullName || "User"}
+                        src={user.image}
+                        alt={user.name || "User"}
                         fill
                         className="rounded-full object-cover"
                       />
@@ -104,17 +109,18 @@ export default function Navbar() {
                     )}
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56 bg-zinc-900 border-zinc-800">
+                <DropdownMenuContent
+                  align="end"
+                  className="w-56 bg-zinc-900 border-zinc-800"
+                >
                   <DropdownMenuLabel>
                     <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium">{user.fullName}</p>
-                      <p className="text-xs text-gray-400">
-                        {user.primaryEmailAddress?.emailAddress}
-                      </p>
+                      <p className="text-sm font-medium">{user.name}</p>
+                      <p className="text-xs text-gray-400">{user.email}</p>
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  
+
                   <DropdownMenuItem asChild>
                     <Link href="/dashboard/profile" className="cursor-pointer">
                       <User className="mr-2 h-4 w-4" />
@@ -127,9 +133,12 @@ export default function Navbar() {
                       <span>Projects</span>
                     </Link>
                   </DropdownMenuItem>
-                  
+
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => signOut()} className="cursor-pointer">
+                  <DropdownMenuItem
+                    onClick={() => signOut()}
+                    className="cursor-pointer"
+                  >
                     <LogOut className="mr-2 h-4 w-4" />
                     <span>Log out</span>
                   </DropdownMenuItem>
@@ -154,7 +163,11 @@ export default function Navbar() {
             className="md:hidden"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
-            {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            {isMenuOpen ? (
+              <X className="h-6 w-6" />
+            ) : (
+              <Menu className="h-6 w-6" />
+            )}
           </Button>
         </div>
       </div>
@@ -176,7 +189,9 @@ export default function Navbar() {
                     key={link.href}
                     href={link.href}
                     className={`text-base font-medium transition-colors hover:text-green-400 ${
-                      pathname === link.href ? "text-green-400" : "text-gray-200"
+                      pathname === link.href
+                        ? "text-green-400"
+                        : "text-gray-200"
                     }`}
                   >
                     {link.label}
@@ -186,10 +201,16 @@ export default function Navbar() {
                 {user ? (
                   <>
                     <div className="h-px bg-zinc-800 my-2"></div>
-                    <Link href="/dashboard" className="text-base font-medium hover:text-green-400">
+                    <Link
+                      href="/dashboard"
+                      className="text-base font-medium hover:text-green-400"
+                    >
                       Dashboard
                     </Link>
-                    <Link href="/dashboard/profile" className="text-base font-medium hover:text-green-400">
+                    <Link
+                      href="/dashboard/profile"
+                      className="text-base font-medium hover:text-green-400"
+                    >
                       Profile
                     </Link>
                     <button
@@ -202,10 +223,16 @@ export default function Navbar() {
                 ) : (
                   <>
                     <div className="h-px bg-zinc-800 my-2"></div>
-                    <Link href="/auth/signin" className="text-base font-medium hover:text-green-400">
+                    <Link
+                      href="/auth/signin"
+                      className="text-base font-medium hover:text-green-400"
+                    >
                       Sign In
                     </Link>
-                    <Link href="/auth/signup" className="text-base font-medium hover:text-green-400">
+                    <Link
+                      href="/auth/signup"
+                      className="text-base font-medium hover:text-green-400"
+                    >
                       Sign Up
                     </Link>
                   </>
